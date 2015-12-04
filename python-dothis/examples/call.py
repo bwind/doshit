@@ -2,6 +2,10 @@ from tasks import add
 from tasks import echo
 from tasks import error
 
+# to override dothis seting you can do the following
+#import dothis.settings as s
+#s.QUEUE_NAME = 'other'
+
 add_result = add.delay(1, 2)
 echo_result = echo.delay('shit yeeah')
 error_result = error.delay()

@@ -193,6 +193,11 @@ usage='to run the example do:\n\
                         help='the name of the task queue you would like to process tasks for',
                         )
 
+    parser.add_argument('-r', '--redis',
+                        default=settings.REDIS_CONNECTION,
+                        help='the connection in json e.g. {"host": "localhost", "port": 6379, "db": 0 }',
+                        )
+
     parser.add_argument('module',
                         help='the module containing the methods you wish to call.')
 
@@ -203,6 +208,8 @@ usage='to run the example do:\n\
     except ImportError:
         sys.path.insert(0, os.getcwd())
         module = import_module(args.module)
+
+    settings.REDIS_CONNECTION = args.redis
 
     signal.signal(signal.SIGTERM, signal_terminate)
     worker_server(module, args.queue)

@@ -5,12 +5,12 @@ This is a quickly hack together project for work. Goals are to keep a simple sch
 
 LANG SUPPORT:
 
-* Python supports:
-** job creation
-** job executing via a worker.
+Python supports:
+* job creation
+* job executing via a worker.
 
-* NodeJs supports:
-** job creation
+NodeJs supports:
+* job creation
 
 
 ## how to use dothis in REDIS directly.

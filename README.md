@@ -1,7 +1,7 @@
 # dothis
 Job queue for Python and NodeJS using Redis.
 
-This is a quickly hack together project for work. Goals are to keep a simple schema in redis so we can integrate between languages quickly for job queuing and result storing.
+This is a quickly hacked together project for work. Goals are to keep a simple schema in redis so we can integrate between languages quickly for job queuing and result storing.
 
 LANG SUPPORT:
 

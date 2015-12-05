@@ -17,7 +17,7 @@ HSET {queue_name}:task:{task_id} state pending
 HSET {queue_name}:task:{task_id} function {args}
 ```
 
-note: args is a json string '{"name": "gregc", "age": 35}' and you must state each parameter name, arrays or args is not accepted
+note: args is a json string '{"name": "gregc", "age": 35}' and you must state each parameter name, arrays are not accepted
 
 2) push the task to the pending list / queue:
 

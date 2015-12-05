@@ -9,9 +9,9 @@ Job queue for Python and NodeJS using Redis.
 
 Creating a task is done in two steps:
 
-1) create a hash describing the task attributes in redis:
+1) create a hash describing the task's attributes in redis:
 
-``` bash
+``` redis
 HSET {queue_name}:task:{task_id} function {function_name}
 HSET {queue_name}:task:{task_id} state pending
 HSET {queue_name}:task:{task_id} function {args}

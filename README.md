@@ -30,14 +30,14 @@ The schema can be broken down into:
 
 ### task states
 
-'pending'
-'executing'
-'finished'
+* 'pending'   the task has been submitted for execution.
+* 'executing' the task is currently is being executed by a worker.
+* 'finished'  the task has finished, go check the 'result' of the task to see if it was successful or failed.
 
 ### task results:
 
-'successful'
-'failed'
+* 'successful'
+* 'failed'
 
 ![alt text] (redis_schema.png)
 

@@ -13,8 +13,8 @@ NodeJs supports:
 * job creation
 
 For more details on how to use dothis with python and nodejs go read
-![Alt text](dothis/python-dothis/README.md)
-![Alt text](dothis/nodejs-dothis/README.md)
+[Python README.md](dothis/python-dothis/README.md)
+[NodeJS README.md](dothis/nodejs-dothis/README.md)
 
 ## how to use dothis in REDIS directly.
 

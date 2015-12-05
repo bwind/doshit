@@ -36,8 +36,8 @@ The schema can be broken down into:
 
 ### task results:
 
-* 'successful'
-* 'failed'
+* 'successful'  the job was executed succuessfully go get the 'result-value' from the task if you like
+* 'failed'      the job failed for some reason, go check 'error-reason' and 'error-exception' to find out why.
 
 ![alt text] (redis_schema.png)
 

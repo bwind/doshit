@@ -12,6 +12,9 @@ Python supports:
 NodeJs supports:
 * job creation
 
+For more details on python on how to use python and nodejs with dothis check
+* dothis/python-dothis/README.md
+* dothis/nodejs-dothis/README.md
 
 ## how to use dothis in REDIS directly.
 

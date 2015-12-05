@@ -22,11 +22,11 @@ For more details on how to use dothis with python and nodejs go read
 
 The schema can be broken down into:
 
-* task       - redis-type (hash) describing the task
-* pending    - redis-type (list) which the workers pull task id / jobs from.
-* executing  - redis-type (list) which says waht task id are being executed.
-* worker     - redis-type (hash) describing the workers doing stuff.
-* results    - redis-pubsub channel used for publishing what task id / jobs have been finished.
+* task       - (redis hash) describing the task
+* pending    - (redis list) which the workers pull task id / jobs from.
+* executing  - (redis list) which says waht task id are being executed.
+* worker     - (redis hash) describing the workers doing stuff.
+* results    - (redis pubsub channel) used for publishing what task id / jobs have been finished.
 
 ### task states
 

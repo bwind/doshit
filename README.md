@@ -1,11 +1,11 @@
 # dothis
 Job queue for Python and NodeJS using Redis
 
-## creating a job
+## creating a task / job directly in redis
 
-To create a job is done in two steps:
+Creating a task is done in two steps:
 
-1) create a hash in redis:
+1) create a hash describing the task attributes in redis:
 
 ``` bash
 HSET {queue_name}:task:{task_id} function {function_name}
@@ -24,6 +24,8 @@ LPUSH {queue_name}:task:{task_id} {queue_name}:task:{task_id}
 Your done!
 
 ## waiting for a job's results
+
+## print outs from reids
 
 ``` bash
 127.0.0.1:6379> keys * 

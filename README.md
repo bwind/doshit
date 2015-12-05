@@ -18,6 +18,8 @@ For more details on how to use dothis with python and nodejs go read
 
 ## how to use dothis in REDIS directly.
 
+![alt text] (dothis/redis_schema.png)
+
 ### Creating a task
 
 Creating a task is done in two steps:

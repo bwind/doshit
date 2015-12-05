@@ -26,13 +26,12 @@ redis-server
 cd python-dothis/examples/
 python ../dothis/worker.py tasks
 ```
+The worker waits for a job from redis then excutes the job, and post and broadcast the result in redis.<br/>
 
-### call task / method in python
-``` bash
-python
-```
+### calling task and function in python
 ``` python
 from tasks import add
 add_result = add.delay(1, 2)
 print add_result.wait()
 ```
+

@@ -7,11 +7,11 @@ To create a job is done in two steps:
 
 1) create a hash in redis:
 
+``` bash
 HSET {queue_name}:task:{task_id} function {function_name}
-
 HSET {queue_name}:task:{task_id} state pending
-
 HSET {queue_name}:task:{task_id} function {args}
+```
 
 note: args is a json string '{"name": "gregc", "age": 35}' and you must state each parameter name, arrays or args is not accepted
 

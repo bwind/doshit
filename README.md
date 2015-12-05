@@ -3,7 +3,9 @@ Job queue for Python and NodeJS using Redis.
 
 
 
-## creating a task / job directly in redis
+## how to use dothis in REDIS directly.
+
+### Creating a task
 
 Creating a task is done in two steps:
 
@@ -22,14 +24,27 @@ note: args is a json string '{"name": "gregc", "age": 35}' and you must state ea
 ``` bash
 LPUSH {queue_name}:task:{task_id} {queue_name}:task:{task_id}
 ```
+example:
+``` bash
+HSET dothis:task:11111111-2222-2222-2222-333333333333 function echo
+HSET dothis:task:11111111-2222-2222-2222-333333333333 state pending
+HSET dothis:task:11111111-2222-2222-2222-333333333333 args '{ "text": "ooh yeeah" }'
+LPUSH dothis:pending 11111111-2222-2222-2222-333333333333
+
+to get the result:
+
+HMGET dothis:task:11111111-2222-2222-2222-333333333333 result result-value
+1) "successful"
+2) "\"ooh yeeah\""
+```
 
 Your done!
 
-## waiting for a job's results
+### waiting for a job's results
 
 to see when a job is finished you can poll or better yet subcribe to the results PUBSUB channel.
 
-### polling result
+#### polling result
 
 ``` bash
 HMGET {queue_name}:task:{task_id} result result-value
@@ -40,11 +55,22 @@ example:
 ``` bash
 127.0.0.1:6379> HMGET dothis:task:47b87457-fbdb-4f2e-8222-2a322bfb4f61 result result-value
 1) "successful"
-2) "\"shit yeeah\""
+2) "\"ooh yeeah\""
 ```
 
-### PUBSUB SUBSCRIBE for result.
+#### PUBSUB SUBSCRIBE for result.
 
+``` bash
+SUBSCRIBE {queue_name}:results
+```
+subscribe to the queues channel.
+
+``` bash
+HMGET {queue_name}:task:{task_id} result result-value
+```
+then go get the result's details if your interested.
+
+example:
 ``` bash
 127.0.0.1:6379> SUBSCRIBE dothis:results
 Reading messages... (press Ctrl-C to quit)
@@ -62,7 +88,7 @@ Reading messages... (press Ctrl-C to quit)
 3) "dothis:task:8e0d0bbc-e0d7-44f6-813d-92807603f016"
 ```
 
-## print outs from reids
+### more schema print outs from REDIS.
 
 ``` bash
 127.0.0.1:6379> keys * 

@@ -1,20 +1,8 @@
 # dothis in python
 
-## install doshit
 
-``` bash
-cd python-dothis/
-python setup.py install
-```
-or via vituralenvwapper
 
-``` bash
-cd python-dothis/
-mkvirtualenv doshit --system-site-package
-add2virtualenv .
-```
-
-## exmample of how to run.
+## exmample
 
 ### start redis-server
 ``` bash
@@ -33,5 +21,19 @@ The worker waits for a job from redis then excutes the job then stores and broad
 from tasks import add
 add_result = add.delay(1, 2)
 print add_result.wait()
+```
+
+## installing dothis
+
+``` bash
+cd python-dothis/
+python setup.py install
+```
+or via vituralenvwapper
+
+``` bash
+cd python-dothis/
+mkvirtualenv dothis --system-site-package
+add2virtualenv .
 ```
 

@@ -1,6 +1,25 @@
 # dothis
 Job queue for Python and NodeJS using Redis
 
+## creating a job
+
+To create a job is done in two steps:
+
+1) create a hash in redis:
+
+HSET {queue_name}:task:{task_id} function {function_name}
+HSET {queue_name}:task:{task_id} state pending
+HSET {queue_name}:task:{task_id} function {args}
+
+note: args is a json string '{"name": "gregc", "age": 35}' and you must state each parameter name, arrays or args is not accepted
+
+2) push the task to the pending list / queue:
+
+LPUSH {queue_name}:task:{task_id} {queue_name}:task:{task_id}
+
+Your done!
+
+## waiting for a job's results
 
 ``` bash
 127.0.0.1:6379> keys * 

@@ -11,7 +11,7 @@ Creating a task is done in two steps:
 
 1) create a hash describing the task's attributes in redis:
 
-``` redis
+``` bash
 HSET {queue_name}:task:{task_id} function {function_name}
 HSET {queue_name}:task:{task_id} state pending
 HSET {queue_name}:task:{task_id} function {args}

@@ -17,7 +17,9 @@ note: args is a json string '{"name": "gregc", "age": 35}' and you must state ea
 
 2) push the task to the pending list / queue:
 
+``` bash
 LPUSH {queue_name}:task:{task_id} {queue_name}:task:{task_id}
+```
 
 Your done!
 

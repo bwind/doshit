@@ -13,11 +13,13 @@ def copy_files(src_glob, dst_folder):
 class custom_install(install):
     def run(self):
         install.run(self)
+        os.symlink()
+        ln -s /etc/sv/consul /etc/service
         #archive_util.mkpath("/etc/cloudburst", mode=774)
         #copy_files('cloudburst/config/*.yml', '/etc/cloudburst')
 
 setup(name='dothis',
-      version='0.1',
+      version='0.0.1',
       description='DoThis',
       author='MetOcean Solutions',
       author_email='g.chalmers@metocean.co.nz',

@@ -1,5 +1,7 @@
 # dothis
-Job queue for Python and NodeJS using Redis
+Job queue for Python and NodeJS using Redis.
+
+
 
 ## creating a task / job directly in redis
 
@@ -24,6 +26,41 @@ LPUSH {queue_name}:task:{task_id} {queue_name}:task:{task_id}
 Your done!
 
 ## waiting for a job's results
+
+to see when a job is finished you can poll or better yet subcribe to the results PUBSUB channel.
+
+### polling result
+
+``` bash
+HMGET {queue_name}:task:{task_id} result result-value
+```
+if no result has been posted you will get: 1) (nil) 2) (nil)
+
+example:
+``` bash
+127.0.0.1:6379> HMGET dothis:task:47b87457-fbdb-4f2e-8222-2a322bfb4f61 result result-value
+1) "successful"
+2) "\"shit yeeah\""
+```
+
+### PUBSUB SUBSCRIBE for result.
+
+``` bash
+127.0.0.1:6379> SUBSCRIBE dothis:results
+Reading messages... (press Ctrl-C to quit)
+1) "subscribe"
+2) "dothis:results"
+3) (integer) 1
+1) "message"
+2) "dothis:results"
+3) "dothis:task:518696a2-6c41-4456-8d6e-76ac29ad77dd"
+1) "message"
+2) "dothis:results"
+3) "dothis:task:47b87457-fbdb-4f2e-8222-2a322bfb4f61"
+1) "message"
+2) "dothis:results"
+3) "dothis:task:8e0d0bbc-e0d7-44f6-813d-92807603f016"
+```
 
 ## print outs from reids
 

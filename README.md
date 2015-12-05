@@ -31,7 +31,7 @@ HSET dothis:task:11111111-2222-2222-2222-333333333333 state pending
 HSET dothis:task:11111111-2222-2222-2222-333333333333 args '{ "text": "ooh yeeah" }'
 LPUSH dothis:pending 11111111-2222-2222-2222-333333333333
 ```
-to get results:
+get result:
 ```
 HMGET dothis:task:11111111-2222-2222-2222-333333333333 result result-value
 1) "successful"

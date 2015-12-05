@@ -5,27 +5,36 @@ doshit = require('../');
 
 client = doshit('redis://docker:6379', 'dothis');
 
+client.on('success', function(result, task) {
+  return console.log(task);
+});
+
 client.task('add', {
   a: 1,
   b: 5
 }, function(err, result, task) {
   if (err != null) {
-    return console.error(err);
+    client.quit();
+    console.error(err);
+    return;
   }
-  return console.log("1 + 5 = " + result);
-});
-
-client.task('echo', {
-  text: 'YARR'
-}, function(err, result, task) {
-  if (err != null) {
-    return console.error(err);
-  }
-  return console.log("YARR in, " + result + " out");
-});
-
-client.task('error', {}, function(err, result, task) {
-  if (err != null) {
-    return console.error(err);
-  }
+  console.log("1 + 5 = " + result);
+  return client.task('echo', {
+    text: 'YARR'
+  }, function(err, result, task) {
+    if (err != null) {
+      client.quit();
+      console.error(err);
+      return;
+    }
+    console.log("YARR in, " + result + " out");
+    return client.task('error', {}, function(err, result, task) {
+      if (err != null) {
+        client.quit();
+        console.error(err);
+        return;
+      }
+      return client.quit();
+    });
+  });
 });

@@ -1,5 +1,5 @@
 # dothis
-Job queue for Python and NodeJS using Redis.
+Job queue for Python and Node.js using Redis.
 
 This is a quickly hacked together project for work. Goals are to keep a simple schema in redis so we can integrate between languages quickly for job queuing and result storing.
 
@@ -9,7 +9,7 @@ Python supports:
 * job creation
 * job executing via a worker.
 
-NodeJs supports:
+Node.js supports:
 * job creation
 
 For more details on how to use dothis with python and nodejs go read

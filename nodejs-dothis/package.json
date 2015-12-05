@@ -1,0 +1,25 @@
+{
+  "name": "doshit",
+  "version": "0.0.1",
+  "description": "Dispatch and receive tasks through redis",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:metocean/dothis.git"
+  },
+  "bugs": {
+    "url": "https://github.com/metocean/dothis/issues"
+  },
+  "readmeFilename": "README.md",
+  "author": "Thomas Coats <t.coats@metocean.co.nz>",
+  "license": "MIT",
+  "dependencies": {
+    "moment": "2.10.6",
+    "redis": "2.4.2",
+    "uuid": "2.0.1"
+  },
+  "homepage": "https://github.com/metocean/dothis"
+}

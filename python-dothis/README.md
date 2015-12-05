@@ -1,17 +1,15 @@
 # dothis in python
 
-
-
 ## example of running dothis
 
-Note you must start the redis-server.
+Note you must start the redis-server and `pip install psutil redis`.
 
 ### start worker
 ``` bash
 cd python-dothis/examples/
 python ../dothis/worker.py tasks
 ```
-The worker waits for a job from redis then excutes the job then stores and broadcast the result in redis.<br/>
+The worker waits for a job from redis then excutes the job then stores and broadcast the result in redis.
 
 ### calling task and function in python
 ``` python

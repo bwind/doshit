@@ -2,12 +2,9 @@
 
 
 
-## exmample
+## example of running dothis
 
-### start redis-server
-``` bash
-redis-server
-```
+Note you must start the redis-server.
 
 ### start worker
 ``` bash

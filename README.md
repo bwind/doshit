@@ -1,4 +1,4 @@
-# dothis
+# doshit
 Job queue for Python and Node.js using Redis.
 
 This is a quickly hacked together project for work. Goals are to keep a simple schema in redis so we can integrate between languages quickly for job queuing and result storing.
@@ -12,9 +12,9 @@ Python supports:
 Node.js supports:
 * job creation
 
-For more details on how to use dothis with python and nodejs go read
-* [Python README.md](/python-dothis/README.md)
-* [NodeJS README.md](/nodejs-dothis/README.md)
+For more details on how to use doshit with python and nodejs go read
+* [Python README.md](/python-doshit/README.md)
+* [NodeJS README.md](/nodejs-doshit/README.md)
 
 ## redis
 
@@ -62,14 +62,14 @@ LPUSH {queue_name}:task:{task_id} {queue_name}:task:{task_id}
 ```
 example:
 ``` bash
-HSET dothis:task:11111111-2222-2222-2222-333333333333 function echo
-HSET dothis:task:11111111-2222-2222-2222-333333333333 state pending
-HSET dothis:task:11111111-2222-2222-2222-333333333333 args '{ "text": "ooh yeeah" }'
-LPUSH dothis:pending 11111111-2222-2222-2222-333333333333
+HSET doshit:task:11111111-2222-2222-2222-333333333333 function echo
+HSET doshit:task:11111111-2222-2222-2222-333333333333 state pending
+HSET doshit:task:11111111-2222-2222-2222-333333333333 args '{ "text": "ooh yeeah" }'
+LPUSH doshit:pending 11111111-2222-2222-2222-333333333333
 ```
 get result:
 ```
-HMGET dothis:task:11111111-2222-2222-2222-333333333333 result result-value
+HMGET doshit:task:11111111-2222-2222-2222-333333333333 result result-value
 1) "successful"
 2) "\"ooh yeeah\""
 ```
@@ -89,7 +89,7 @@ if no result has been posted you will get: 1) (nil) 2) (nil)
 
 example:
 ``` bash
-127.0.0.1:6379> HMGET dothis:task:47b87457-fbdb-4f2e-8222-2a322bfb4f61 result result-value
+127.0.0.1:6379> HMGET doshit:task:47b87457-fbdb-4f2e-8222-2a322bfb4f61 result result-value
 1) "successful"
 2) "\"ooh yeeah\""
 ```
@@ -108,48 +108,48 @@ then go get the result's details if your interested.
 
 example:
 ``` bash
-127.0.0.1:6379> SUBSCRIBE dothis:results
+127.0.0.1:6379> SUBSCRIBE doshit:results
 Reading messages... (press Ctrl-C to quit)
 1) "subscribe"
-2) "dothis:results"
+2) "doshit:results"
 3) (integer) 1
 1) "message"
-2) "dothis:results"
-3) "dothis:task:518696a2-6c41-4456-8d6e-76ac29ad77dd"
+2) "doshit:results"
+3) "doshit:task:518696a2-6c41-4456-8d6e-76ac29ad77dd"
 1) "message"
-2) "dothis:results"
-3) "dothis:task:47b87457-fbdb-4f2e-8222-2a322bfb4f61"
+2) "doshit:results"
+3) "doshit:task:47b87457-fbdb-4f2e-8222-2a322bfb4f61"
 1) "message"
-2) "dothis:results"
-3) "dothis:task:8e0d0bbc-e0d7-44f6-813d-92807603f016"
+2) "doshit:results"
+3) "doshit:task:8e0d0bbc-e0d7-44f6-813d-92807603f016"
 ```
 
 ### more schema print outs from REDIS.
 
 ``` bash
-127.0.0.1:6379> keys * 
-1) "dothis:pending"
-2) "dothis:worker:f06b9775-22fe-45d6-8f9b-ec9d5d3e1cb5"
-3) "dothis:task:963eddf6-e577-48b1-9fec-3c19bbdf2365"
-4) "dothis:task:bb3b960c-0067-4d5d-897a-82135f8bcbb4"
-5) "dothis:task:762561ae-96a4-4455-852e-8cf86d182136"
-6) "dothis:task:963eddf6-e577-48b1-9fec-3c19bbdf2365"
-7) "dothis:task:def20874-1c92-4d9b-82b1-c3a3b359da07"
+127.0.0.1:6379> keys *
+1) "doshit:pending"
+2) "doshit:worker:f06b9775-22fe-45d6-8f9b-ec9d5d3e1cb5"
+3) "doshit:task:963eddf6-e577-48b1-9fec-3c19bbdf2365"
+4) "doshit:task:bb3b960c-0067-4d5d-897a-82135f8bcbb4"
+5) "doshit:task:762561ae-96a4-4455-852e-8cf86d182136"
+6) "doshit:task:963eddf6-e577-48b1-9fec-3c19bbdf2365"
+7) "doshit:task:def20874-1c92-4d9b-82b1-c3a3b359da07"
 ```
 
 ``` bash
-127.0.0.1:6379> LRANGE dothis:pending 0 -1
+127.0.0.1:6379> LRANGE doshit:pending 0 -1
 1) "762561ae-96a4-4455-852e-8cf86d182136"
 2) "963eddf6-e577-48b1-9fec-3c19bbdf2365"
 ```
 
 ``` bash
-127.0.0.1:6379> LRANGE dothis:executing 0 -1
+127.0.0.1:6379> LRANGE doshit:executing 0 -1
 1) "def20874-1c92-4d9b-82b1-c3a3b359da07"
 ```
 
 ``` bash
-HGETALL dothis:task:bb3b960c-0067-4d5d-897a-82135f8bcbb4 
+HGETALL doshit:task:bb3b960c-0067-4d5d-897a-82135f8bcbb4
  1) "function"
  2) "echo"
  3) "state"

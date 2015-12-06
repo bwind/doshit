@@ -1,7 +1,7 @@
-from dothis import task
+from doshit import task
 
-# to override dothis seting you can do the following
-#import dothis.settings as s
+# to override doshit seting you can do the following
+#import doshit.settings as s
 #s.QUEUE_NAME = 'other'
 
 @task

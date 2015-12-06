@@ -3,7 +3,7 @@ var client, doshit;
 
 doshit = require('../');
 
-client = doshit('redis://docker:6379', 'dothis');
+client = doshit('redis://docker:6379', 'doshit');
 
 client.on('success', function(result, task) {
   return console.log(task);

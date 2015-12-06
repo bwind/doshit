@@ -1,13 +1,13 @@
-# dothis in python
+# doshit in python
 
-## example of running dothis
+## example of running doshit
 
 Note you must start the redis-server and `pip install psutil redis`.
 
 ### start worker
 ``` bash
-cd python-dothis/examples/
-python ../dothis/worker.py tasks
+cd python-doshit/examples/
+python ../doshit/worker.py tasks
 ```
 The worker waits for a job from redis then excutes the job then stores and broadcast the result in redis.
 
@@ -18,17 +18,17 @@ add_result = add.delay(1, 2)
 print add_result.wait()
 ```
 
-## installing dothis
+## installing doshit
 
 ``` bash
-cd python-dothis/
+cd python-doshit/
 python setup.py install
 ```
 or via vituralenvwapper
 
 ``` bash
-cd python-dothis/
-mkvirtualenv dothis --system-site-package
+cd python-doshit/
+mkvirtualenv doshit --system-site-package
 add2virtualenv .
 ```
 

@@ -172,12 +172,12 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
 
-description='This is a dothis worker, you pass it the name of the module you would like to to process',
+description='This is a doshit worker, you pass it the name of the module you would like to to process',
 
 usage='to run the example do:\n\
 1) start redis-server\n\
 2) cd into examples directory\n\
-3) python ../dothis/worker.py tasks\n\
+3) python ../doshit/worker.py tasks\n\
 4) python call.py',
 
     version=__version__

@@ -1,5 +1,5 @@
 doshit = require '../'
-client = doshit 'redis://docker:6379', 'dothis'
+client = doshit 'redis://docker:6379', 'doshit'
 
 client.on 'success', (result, task) ->
   console.log task

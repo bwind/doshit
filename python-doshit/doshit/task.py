@@ -100,9 +100,9 @@ def task(func):
         task_id = kwargs.pop('id', str(uuid4()))
         queue = kwargs.pop('queue', settings.QUEUE_NAME)
 
-        task_hash_key = get_task_hash_key(settings.APP_PREFIX, task_id)
-        pending_list_key = get_pending_list_key(settings.APP_PREFIX, queue)
-        results_channel_key = get_results_channel_key(settings.APP_PREFIX)
+        task_hash_key = get_task_hash_key(task_id)
+        pending_list_key = get_pending_list_key(queue)
+        results_channel_key = get_results_channel_key()
 
         pubsub = redis.pubsub(ignore_subscribe_messages=True)
         pubsub.subscribe(results_channel_key)

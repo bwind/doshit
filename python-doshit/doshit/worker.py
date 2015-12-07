@@ -35,7 +35,7 @@ _terminate = Event()
 
 
 def _register_worker(redis, worker_uuid):
-    redis.hmset(get_worker_hash_key(settings.APP_PREFIX, worker_uuid),
+    redis.hmset(get_worker_hash_key(worker_uuid),
                 {
                     'hostname': gethostname(),
                     'pid': os.getpid(),
@@ -48,7 +48,7 @@ def _register_worker(redis, worker_uuid):
 
 
 def _deregister_worker(redis, worker_uuid):
-    redis.delete(get_worker_hash_key(settings.APP_PREFIX, worker_uuid))
+    redis.delete(get_worker_hash_key(worker_uuid))
 
 
 def _set_finished(redis,
@@ -59,8 +59,8 @@ def _set_finished(redis,
                   result_value=None,
                   error_reason=None,
                   error_exception=None):
-    results_channel_key = get_results_channel_key(settings.APP_PREFIX)
-    executing_list_key = get_executing_list_key(settings.APP_PREFIX, queue)
+    results_channel_key = get_results_channel_key()
+    executing_list_key = get_executing_list_key(queue)
 
     task = {'state': STATE_FINISHED,
             'result': result,
@@ -86,8 +86,8 @@ def _set_finished(redis,
 
 
 def worker_server(module, queue):
-    pending_key = get_pending_list_key(settings.APP_PREFIX, queue)
-    executing_key = get_executing_list_key(settings.APP_PREFIX, queue)
+    pending_key = get_pending_list_key(queue)
+    executing_key = get_executing_list_key(queue)
     worker_uuid = uuid4()
     redis = create_redis()
 
@@ -101,7 +101,7 @@ def worker_server(module, queue):
             if task_id is None:
                 continue
 
-            task_hash_key = get_task_hash_key(settings.APP_PREFIX, task_id)
+            task_hash_key = get_task_hash_key(task_id)
 
             task = redis.hmget(task_hash_key, ('function', 'state', 'args'))
             function = task[0]

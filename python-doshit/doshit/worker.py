@@ -167,7 +167,10 @@ def signal_terminate(num, stack):
     os.kill(os.getpid(), signal.SIGINT)
 
 
-if __name__ == "__main__":
+def main():
+
+    import sys
+    print sys.argv
 
     parser = argparse.ArgumentParser(
 
@@ -202,13 +205,18 @@ usage='to run the example do:\n\
 
     args = parser.parse_args()
 
+    module_name = args.module.rstrip('.py')
+
     try:
-        module = import_module(args.module)
+        module = import_module(module_name)
     except ImportError:
         sys.path.insert(0, os.getcwd())
-        module = import_module(args.module)
+        module = import_module(module_name)
 
     settings.REDIS_CONNECTION = args.redis
 
     signal.signal(signal.SIGTERM, signal_terminate)
     worker_server(module, args.queue)
+
+if __name__ == "__main__":
+    sys.exit(main())

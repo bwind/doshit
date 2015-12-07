@@ -25,8 +25,8 @@ class custom_install(install):
                 print '$ su'
                 print '$ python setup.py install'
                 print ''
-            else:
-                raise e
+
+            raise e
 
 print setup(name='doshit',
       version='0.1.0',

@@ -1,5 +1,5 @@
-from distutils.core import setup
-from distutils.command.install import install
+from setuptools import setup
+from setuptools.command.install import install
 from shutil import copy2
 import os
 import errno

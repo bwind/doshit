@@ -15,6 +15,12 @@ pip install psutil redis
 cd python-doshit/examples/
 python ../doshit/worker.py tasks
 ```
+or if you if you have install via 'python setup.py install' 
+``` bash
+cd python-doshit/examples/
+doshit worker tasks
+```
+
 The worker waits for a job from redis then excutes the job then stores and broadcast the result in redis.
 
 ### calling task and function in python

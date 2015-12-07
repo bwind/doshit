@@ -1,4 +1,4 @@
-__version__ = '0.0.1'
+__version__ = '0.1.0'
 
 from redis import Redis
 import settings
@@ -18,4 +18,3 @@ def create_redis():
         return Redis(**settings.REDIS_CONNECTION)
     else:
         return Redis()
-

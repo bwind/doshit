@@ -48,9 +48,9 @@ Creating a task is done in two steps:
 1) create a hash describing the task's attributes in redis:
 
 ``` bash
-HSET {queue_name}:task:{task_id} function {function_name}
-HSET {queue_name}:task:{task_id} state pending
-HSET {queue_name}:task:{task_id} function {args}
+HSET {app_prefix}:task:{task_id} function {function_name}
+HSET {app_prefix}:task:{task_id} state pending
+HSET {app_prefix}:task:{task_id} function {args}
 ```
 
 note: args is a json string '{"name": "gregc", "age": 35}' and you must state each parameter name, arrays are not accepted
@@ -58,14 +58,14 @@ note: args is a json string '{"name": "gregc", "age": 35}' and you must state ea
 2) push the task to the pending list / queue:
 
 ``` bash
-LPUSH {queue_name}:task:{task_id} {queue_name}:task:{task_id}
+LPUSH {app_prefix}:{queue_name}:task:{task_id} {task_id}
 ```
 example:
 ``` bash
 HSET doshit:task:11111111-2222-2222-2222-333333333333 function echo
 HSET doshit:task:11111111-2222-2222-2222-333333333333 state pending
 HSET doshit:task:11111111-2222-2222-2222-333333333333 args '{ "text": "ooh yeeah" }'
-LPUSH doshit:pending 11111111-2222-2222-2222-333333333333
+LPUSH doshit:default:pending 11111111-2222-2222-2222-333333333333
 ```
 get result:
 ```
@@ -83,7 +83,7 @@ to see when a job is finished you can poll or better yet subcribe to the results
 #### polling result
 
 ``` bash
-HMGET {queue_name}:task:{task_id} result result-value
+HMGET {app_prefix}:task:{task_id} result result-value
 ```
 if no result has been posted you will get: 1) (nil) 2) (nil)
 
@@ -97,12 +97,12 @@ example:
 #### PUBSUB SUBSCRIBE for result.
 
 ``` bash
-SUBSCRIBE {queue_name}:results
+SUBSCRIBE {app_prefix}:results
 ```
 subscribe to the queues channel.
 
 ``` bash
-HMGET {queue_name}:task:{task_id} result result-value
+HMGET {app_prefix}:task:{task_id} result result-value
 ```
 then go get the result's details if your interested.
 
@@ -128,7 +128,7 @@ Reading messages... (press Ctrl-C to quit)
 
 ``` bash
 127.0.0.1:6379> keys *
-1) "doshit:pending"
+1) "doshit:default:pending"
 2) "doshit:worker:f06b9775-22fe-45d6-8f9b-ec9d5d3e1cb5"
 3) "doshit:task:963eddf6-e577-48b1-9fec-3c19bbdf2365"
 4) "doshit:task:bb3b960c-0067-4d5d-897a-82135f8bcbb4"

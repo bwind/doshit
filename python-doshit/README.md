@@ -2,7 +2,13 @@
 
 ## example of running doshit
 
-Note you must start the redis-server and `pip install psutil redis`.
+Note you must start the redis-server.
+
+## requirements dependencies
+
+``` bash
+pip install psutil redis
+```
 
 ### start worker
 ``` bash
@@ -31,4 +37,3 @@ cd python-doshit/
 mkvirtualenv doshit --system-site-package
 add2virtualenv .
 ```
-

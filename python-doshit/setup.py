@@ -38,4 +38,4 @@ print setup(name='doshit',
 
       cmdclass={'install': custom_install},
 
-      requires=["redis", "psutil"])
+      install_requires=["redis", "psutil"])

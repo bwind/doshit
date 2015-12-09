@@ -17,10 +17,11 @@ from inspect import getcallargs
 
 class DelayedResult(object):
 
-    def __init__(self, redis, pubsub, task_hash_key):
+    def __init__(self, redis, pubsub, task_hash_key, task_id):
         self._redis = redis
         self._pubsub = pubsub
         self._task_hash_key = task_hash_key
+        self.task_id = task_id
         self.result = None
         self.result_value = None
         self.error_reason = None
@@ -119,7 +120,7 @@ def task(func):
 
         pipe.execute()
 
-        return DelayedResult(redis, pubsub, task_hash_key)
+        return DelayedResult(redis, pubsub, task_hash_key, task_id)
 
     func.delay = delay
     return func

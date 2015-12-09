@@ -131,6 +131,8 @@ def worker_server(module, queue):
 
             try:
                 func = getattr(module, function)
+                setattr(func, 'task_id', task_id)
+
                 if args:
                     result_value = func(**load(args))
                 else:

@@ -12,6 +12,8 @@ def add(a, b):
 
 @task
 def echo(text):
+    if hasattr(echo, 'task_id'):
+        print echo.task_id
     return text
 
 

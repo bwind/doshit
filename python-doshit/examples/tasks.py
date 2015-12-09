@@ -2,7 +2,7 @@ from doshit import task
 
 # to override doshit seting you can do the following
 #import doshit.settings as s
-#s.QUEUE_NAME = 'other'
+#s.DOSHIT_QUEUE = 'other'
 
 @task
 def add(a, b):

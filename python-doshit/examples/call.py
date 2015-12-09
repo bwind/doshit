@@ -4,7 +4,7 @@ from tasks import error
 
 # to override doshit seting you can do the following
 #import doshit.settings as s
-#s.QUEUE_NAME = 'other'
+#s.DOSHIT_QUEUE = 'other'
 
 add_result = add.delay(1, 2)
 echo_result = echo.delay('shit yeeah')

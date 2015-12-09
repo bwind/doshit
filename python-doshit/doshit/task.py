@@ -98,7 +98,7 @@ def task(func):
         redis = create_redis()
 
         task_id = kwargs.pop('task_id', str(uuid4()))
-        queue = kwargs.pop('queue', settings.QUEUE_NAME)
+        queue = kwargs.pop('queue', settings.DOSHIT_QUEUE)
 
         task_hash_key = get_task_hash_key(task_id)
         pending_list_key = get_pending_list_key(queue)

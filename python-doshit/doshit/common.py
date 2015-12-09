@@ -11,10 +11,10 @@ RESULT_SUCCESSFUL = 'successful'
 RESULT_FAILED = 'failed'
 
 def create_redis():
-    if settings.REDIS_CONNECTION:
+    if settings.DOSHIT_REDIS:
         print 'redis connection:'
-        print settings.REDIS_CONNECTION
+        print settings.DOSHIT_REDIS
 
-        return Redis(**settings.REDIS_CONNECTION)
+        return Redis(**settings.DOSHIT_REDIS)
     else:
         return Redis()

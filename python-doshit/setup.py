@@ -11,7 +11,7 @@ class custom_install(install):
         else:
             dest = '/usr/bin/doshit'
         try:
-            copy2('doshit.py', dest)
+            copy2('doshit_bin.py', dest)
             install.run(self)
         except IOError, e:
             if e.errno == errno.EACCES:

@@ -191,12 +191,12 @@ usage='to run the example do:\n\
                         help='the cpu core count to use, default is minus one the computers physical core count.')
 
     parser.add_argument('-q', '--queue',
-                        default=settings.QUEUE_NAME,
+                        default=settings.DOSHIT_QUEUE,
                         help='the name of the task queue you would like to process tasks for',
                         )
 
     parser.add_argument('-r', '--redis',
-                        default=settings.REDIS_CONNECTION,
+                        default=settings.DOSHIT_REDIS,
                         help='the connection in json e.g. {"host": "localhost", "port": 6379, "db": 0 }',
                         )
 

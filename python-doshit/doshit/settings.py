@@ -3,10 +3,6 @@ import json
 import sys
 
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-if BASE_DIR not in sys.path:
-    sys.path.append(BASE_DIR)
-
 # set default values
 DOSHIT_REDIS = {"host": "localhost", "port": 6379, "db": 0 }
 DOSHIT_QUEUE = 'default'
@@ -26,8 +22,13 @@ if 'DOSHIT_APP_PREFIX' in os.environ:
     DOSHIT_REDIS = os.environ['DOSHIT_APP_PREFIX']
 
 # look for other settings.py files, if they exist load them.
-if os.path.exists('/etc/doshit/settings.py'):
-    from local_settings import *
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.path.isfile(os.path.join(BASE_DIR, 'doshit_settings.py')):
+    if BASE_DIR not in sys.path:
+        sys.path.append(BASE_DIR)
+    from doshit_settings import *
 
-if os.path.isfile(os.path.join(BASE_DIR, 'local_settings.py')):
-    from local_settings import *
+elif os.path.exists('/etc/doshit_settings.py'):
+    if '/etc/doshit' not in sys.path:
+        sys.path.append('/etc/doshit')
+    from doshit_settings import *

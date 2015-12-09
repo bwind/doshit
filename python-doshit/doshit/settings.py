@@ -26,7 +26,7 @@ if 'DOSHIT_APP_PREFIX' in os.environ:
     DOSHIT_REDIS = os.environ['DOSHIT_APP_PREFIX']
 
 # look for other settings.py files, if they exist load them.
-if os.path.exists('/etc/dora/dora_settings.py'):
+if os.path.exists('/etc/doshit/settings.py'):
     from local_settings import *
 
 if os.path.isfile(os.path.join(BASE_DIR, 'local_settings.py')):

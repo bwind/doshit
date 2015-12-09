@@ -28,7 +28,7 @@ if os.path.isfile(os.path.join(BASE_DIR, 'doshit_settings.py')):
         sys.path.append(BASE_DIR)
     from doshit_settings import *
 
-elif os.path.exists('/etc/doshit_settings.py'):
+elif os.path.exists('/etc/doshit/doshit_settings.py'):
     if '/etc/doshit' not in sys.path:
         sys.path.append('/etc/doshit')
     from doshit_settings import *

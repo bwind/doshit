@@ -6,9 +6,9 @@ from tasks import error
 #import doshit.settings as s
 #s.DOSHIT_QUEUE = 'other'
 
-add_result = add.delay(1, 2)
-echo_result = echo.delay('shit yeeah')
-error_result = error.delay()
+add_result = add.exec_async(1, 2)
+echo_result = echo.exec_async('shit yeeah')
+error_result = error.exec_async()
 
 print ''
 print str(add_result)

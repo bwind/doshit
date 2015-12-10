@@ -15,7 +15,7 @@ import json_serializer as json
 from inspect import getcallargs
 
 
-class DelayedResult(object):
+class AsyncResult(object):
 
     def __init__(self, redis, pubsub, task_hash_key, task_id):
         self._redis = redis
@@ -92,7 +92,7 @@ class DelayedResult(object):
 def task(func):
     _func = func
 
-    def delay(*args, **kwargs):
+    def exec_async(*args, **kwargs):
 
         args_json = json.dump(getcallargs(_func, *args, **kwargs), indent=2)
 
@@ -120,7 +120,7 @@ def task(func):
 
         pipe.execute()
 
-        return DelayedResult(redis, pubsub, task_hash_key, task_id)
+        return AsyncResult(redis, pubsub, task_hash_key, task_id)
 
-    func.delay = delay
+    func.exec_async = exec_async
     return func

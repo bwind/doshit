@@ -207,8 +207,7 @@ usage='to run the example do:\n\
 
     args = parser.parse_args()
 
-    module_name = args.module.rstrip('.py')
-
+    module_name = args.module.replace('.py', '')
     try:
         module = import_module(module_name)
     except ImportError:

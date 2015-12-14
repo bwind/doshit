@@ -18,13 +18,13 @@ startswith = function(s, prefix, position) {
   return s.indexOf(prefix, position) === position;
 };
 
-Doshit = function(url, queue) {
+Doshit = function(url, appprefix, queueprefix) {
   var doshit, pendinglist, queries, resultschannel, subscriptions, taskcallbacks, taskprefix;
   EventEmitter.call(this);
   doshit = this;
-  resultschannel = queue + ":results";
-  pendinglist = queue + ":pending";
-  taskprefix = queue + ":task:";
+  resultschannel = appprefix + ":results";
+  pendinglist = appprefix + ":" + queueprefix + ":pending";
+  taskprefix = appprefix + ":task:";
   taskcallbacks = {};
   queries = redis.createClient({
     url: url
@@ -142,6 +142,6 @@ Doshit = function(url, queue) {
 
 util.inherits(Doshit, EventEmitter);
 
-module.exports = function(url, queue) {
-  return new Doshit(url, queue);
+module.exports = function(url, appprefix, queueprefix) {
+  return new Doshit(url, appprefix, queueprefix);
 };

@@ -8,14 +8,14 @@ startswith = (s, prefix, position) ->
   position ?= 0
   s.indexOf(prefix, position) is position
 
-Doshit = (url, queue) ->
+Doshit = (url, appprefix, queueprefix) ->
   EventEmitter.call @
 
   doshit = @
 
-  resultschannel = "#{queue}:results"
-  pendinglist = "#{queue}:pending"
-  taskprefix = "#{queue}:task:"
+  resultschannel = "#{appprefix}:results"
+  pendinglist = "#{appprefix}:#{queueprefix}:pending"
+  taskprefix = "#{appprefix}:task:"
 
   taskcallbacks = {}
 
@@ -85,4 +85,4 @@ Doshit = (url, queue) ->
   @
 
 util.inherits Doshit, EventEmitter
-module.exports = (url, queue) -> new Doshit url, queue
+module.exports = (url, appprefix, queueprefix) -> new Doshit url, appprefix, queueprefix

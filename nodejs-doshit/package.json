@@ -1,6 +1,6 @@
 {
   "name": "doshit",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Dispatch and receive tasks through redis",
   "main": "index.js",
   "scripts": {

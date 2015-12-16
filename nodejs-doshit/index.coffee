@@ -45,6 +45,9 @@ Doshit = (url, appprefix, queueprefix) ->
 
   @task = (name, args, cb) =>
     taskid = uuid.v4()
+    @taskwithid taskid, name, args, cb
+
+  @taskwithid = (taskid, name, args, cb) =>
     taskcallbacks[taskid] = [] if !taskcallbacks[taskid]?
     taskcallbacks[taskid].push cb
     task =
@@ -66,6 +69,7 @@ Doshit = (url, appprefix, queueprefix) ->
   @gettask = (taskid, cb) ->
     queries.hgetall "#{taskprefix}#{taskid}", (err, task) ->
       return cb err if err?
+      return cb err, task if !task?
       for f in ['args', 'result-value']
         continue if !task[f]?
         task[f] = JSON.parse task[f]

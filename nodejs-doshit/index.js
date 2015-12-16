@@ -77,8 +77,14 @@ Doshit = function(url, appprefix, queueprefix) {
   subscriptions.subscribe(resultschannel);
   this.task = (function(_this) {
     return function(name, args, cb) {
-      var task, taskid;
+      var taskid;
       taskid = uuid.v4();
+      return _this.taskwithid(taskid, name, args, cb);
+    };
+  })(this);
+  this.taskwithid = (function(_this) {
+    return function(taskid, name, args, cb) {
+      var task;
       if (taskcallbacks[taskid] == null) {
         taskcallbacks[taskid] = [];
       }
@@ -109,6 +115,9 @@ Doshit = function(url, appprefix, queueprefix) {
       var f, i, j, len, len1, ref, ref1;
       if (err != null) {
         return cb(err);
+      }
+      if (task == null) {
+        return cb(err, task);
       }
       ref = ['args', 'result-value'];
       for (i = 0, len = ref.length; i < len; i++) {

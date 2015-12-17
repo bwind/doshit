@@ -292,11 +292,6 @@ usage='to run the example do:\n\
     version=__version__
     )
 
-    parser.add_argument('-p', '--processes',
-                        type=int,
-                        default=min(psutil.cpu_count(logical=True) - 1, 1),
-                        help='the cpu core count to use, default is minus one the computers physical core count.')
-
     parser.add_argument('-q', '--queue',
                         default=settings.DOSHIT_QUEUE,
                         help='the name of the task queue you would like to process tasks for',

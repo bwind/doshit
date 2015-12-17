@@ -181,9 +181,6 @@ def _execute_task(module,
 
 
 def worker_server(module, queue):
-    _task_hash_key = None
-    _task_child_pid = None
-    _kill_task_hash_key = None
 
     pending_key = get_pending_list_key(queue)
     executing_key = get_executing_list_key(queue)

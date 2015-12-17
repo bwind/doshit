@@ -1,22 +1,37 @@
 import settings
+
+import json_serializer as json
+from json_serializer import strftime
+
 from common import create_redis
 from common import __version__
 
-from json_serializer import dump
-from json_serializer import load
-from json_serializer import strftime
+from common import get_task_hash_key
+from common import get_pending_list_key
+from common import get_executing_list_key
+from common import get_results_channel_key
+from common import get_command_channel_key
+from common import get_worker_hash_key
 
-from redis_keys import get_task_hash_key
-from redis_keys import get_pending_list_key
-from redis_keys import get_executing_list_key
-from redis_keys import get_results_channel_key
-from redis_keys import get_worker_hash_key
+from common import TASK_HKEY_FUNCTION
+from common import TASK_HKEY_STATE
+from common import TASK_HKEY_ARGS
+from common import TASK_HKEY_PENDING_CREATED
+from common import TASK_HKEY_EXECUTING_CREATED
+from common import TASK_HKEY_FINISHED_CREATED
+from common import TASK_HKEY_RESULT
+from common import TASK_HKEY_RESULT_VALUE
+from common import TASK_HKEY_ERROR_REASON
+from common import TASK_HKEY_ERROR_EXCEPTION
+from common import TASK_HKEY_VIRTUAL_MEMORY_LIMIT
 
 from common import STATE_PENDING
 from common import STATE_EXECUTING
 from common import STATE_FINISHED
 from common import RESULT_SUCCESSFUL
 from common import RESULT_FAILED
+
+from os_tools import set_virtual_memory_limit
 
 import os
 import sys
@@ -29,6 +44,7 @@ from threading import Event
 from datetime import datetime
 from socket import gethostname
 from importlib import import_module
+from time import sleep
 
 
 _terminate = Event()
@@ -51,7 +67,7 @@ def _deregister_worker(redis, worker_uuid):
     redis.delete(get_worker_hash_key(worker_uuid))
 
 
-def _set_finished(redis,
+def _set_task_finished(redis,
                   queue,
                   task_id,
                   task_hash_key,
@@ -62,18 +78,18 @@ def _set_finished(redis,
     results_channel_key = get_results_channel_key()
     executing_list_key = get_executing_list_key(queue)
 
-    task = {'state': STATE_FINISHED,
-            'result': result,
-            'finished-created': strftime(datetime.utcnow())}
+    task = {TASK_HKEY_STATE: STATE_FINISHED,
+            TASK_HKEY_RESULT: result,
+            TASK_HKEY_FINISHED_CREATED: strftime(datetime.utcnow())}
 
     if result_value:
-        task['result-value'] = result_value
+        task[TASK_HKEY_RESULT_VALUE] = result_value
 
     if error_reason:
-        task['error-reason'] = error_reason
+        task[TASK_HKEY_ERROR_REASON] = error_reason
 
     if error_exception:
-        task['error-exception'] = error_exception
+        task[TASK_HKEY_ERROR_EXCEPTION] = error_exception
 
     pipe = redis.pipeline(transaction=True)
     pipe.hmset(task_hash_key, task)
@@ -85,11 +101,89 @@ def _set_finished(redis,
     print '\nresult:{0}\nresult-value:{1}\nerror-reason:{2}\n'.format(result, result_value, error_reason)
 
 
+def _execute_task(module,
+                     function,
+                     queue,
+                     task_hash_key,
+                     task_id,
+                     args,
+                     virtual_memory_limit,
+                     pubsub):
+
+    child_pid = os.fork()
+    if child_pid != 0:
+        pid = 0
+        while pid == 0:
+
+            (pid, returncode) = os.waitpid(child_pid, os.P_NOWAIT)
+            if pid:
+                return False, returncode
+
+            message = pubsub.get_message()
+            if message:
+                message = message['data']
+
+            if message and message.startswith('kill-task:'):
+                if task_hash_key == message.replace('kill-task:', ''):
+                    print 'killing child'
+                    os.kill(child_pid, signal.SIGKILL)
+                    os.waitpid(child_pid, os.P_WAIT)
+                    print 'killed child'
+                    return True, returncode
+
+            sleep(0.01)
+    else:
+        try:
+            func = getattr(module, function)
+            setattr(func, 'task_id', task_id)
+
+            redis = create_redis()
+
+            if virtual_memory_limit:
+                if isinstance(virtual_memory_limit, basestring):
+                    virtual_memory_limit = int(virtual_memory_limit)
+                if virtual_memory_limit > 0:
+                    set_virtual_memory_limit(virtual_memory_limit)
+
+            if args:
+                result_value = func(**json.loads(args))
+            else:
+                result_value = func()
+
+            if result_value:
+                result_value = json.dumps(result_value, indent=2)
+
+            _set_task_finished(redis,
+                          queue,
+                          task_id,
+                          task_hash_key,
+                          RESULT_SUCCESSFUL,
+                          result_value)
+
+        except Exception as ex:
+
+            _set_task_finished(redis, queue, task_id, task_hash_key,
+                          RESULT_FAILED,
+                          error_reason= '{0}: {1}'.format(type(ex), ex.message),
+                          error_exception=traceback.format_exc())
+        # exit forked child
+        os._exit(0)
+
+
 def worker_server(module, queue):
+    _task_hash_key = None
+    _task_child_pid = None
+    _kill_task_hash_key = None
+
     pending_key = get_pending_list_key(queue)
     executing_key = get_executing_list_key(queue)
+    command_channel_key = get_command_channel_key()
+
     worker_uuid = uuid4()
     redis = create_redis()
+
+    pubsub = redis.pubsub(ignore_subscribe_messages=True)
+    pubsub.subscribe(command_channel_key)
 
     _register_worker(redis, worker_uuid)
 
@@ -103,68 +197,72 @@ def worker_server(module, queue):
 
             task_hash_key = get_task_hash_key(task_id)
 
-            task = redis.hmget(task_hash_key, ('function', 'state', 'args'))
+            task = redis.hmget(task_hash_key,
+                                (TASK_HKEY_FUNCTION,
+                                TASK_HKEY_STATE,
+                                TASK_HKEY_ARGS,
+                                TASK_HKEY_VIRTUAL_MEMORY_LIMIT))
+
             function = task[0]
             state = task[1]
             args = task[2]
+            virtual_memory_limit = task[3]
 
             if function is None or len(function) == 0:
-                _set_finished(redis, queue, task_id, task_hash_key,
+                _set_task_finished(redis, queue, task_id, task_hash_key,
                               RESULT_FAILED,
                               error_reason='for function to execute was not supplied')
                 continue
 
             elif state != STATE_PENDING:
-                _set_finished(redis, queue, task_id, task_hash_key,
+                _set_task_finished(redis, queue, task_id, task_hash_key,
                               RESULT_FAILED,
                               error_reason='to execute a task its state must be "{0}" not "{1}"'.format(STATE_PENDING,
                                                                                                         state))
                 continue
 
             else:
-                redis.hmset(task_hash_key, {'state': STATE_EXECUTING, 'executing-created': strftime(datetime.utcnow())})
 
-            print 'executing task_id:{0}\nfunction: {1}\nargs: {2}\n'.format(task_id,
+                redis.hmset(task_hash_key,
+                            {TASK_HKEY_STATE: STATE_EXECUTING,
+                            TASK_HKEY_EXECUTING_CREATED: strftime(datetime.utcnow())})
+
+            print 'executing task_id:{0}\nfunction: {1}\nargs: {2}\n virtual_memory_limit:{3}\n'.format(task_id,
                                                                              function,
-                                                                             args)
+                                                                             args,
+                                                                             virtual_memory_limit)
             print '--------------------------------------'
 
-            try:
-                func = getattr(module, function)
-                setattr(func, 'task_id', task_id)
-
-                if args:
-                    result_value = func(**load(args))
-                else:
-                    result_value = func()
-
-                if result_value:
-                    result_value = dump(result_value, indent=2)
-
-                print '--------------------------------------'
-                _set_finished(redis,
+            killed, returncode = _execute_task(module,
+                              function,
                               queue,
-                              task_id,
                               task_hash_key,
-                              RESULT_SUCCESSFUL,
-                              result_value)
+                              task_id,
+                              args,
+                              virtual_memory_limit,
+                              pubsub)
 
-            except Exception, ex:
+            if killed:
+                _set_task_finished(redis, queue, task_id, task_hash_key,
+                          RESULT_FAILED,
+                          error_reason='task was killed')
 
-                print '--------------------------------------'
-                _set_finished(redis, queue, task_id, task_hash_key,
-                              RESULT_FAILED,
-                              error_reason=ex.message,
-                              error_exception=traceback.format_exc())
+            elif returncode != 0:
+                _set_task_finished(redis, queue, task_id, task_hash_key,
+                          RESULT_FAILED,
+                          error_reason='task returned with returncode: {0}'.format(returncode))
+            print '--------------------------------------'
 
         except KeyboardInterrupt:
             _terminate.set()
+
+    pubsub.close()
 
     _deregister_worker(redis, worker_uuid)
 
 
 def signal_terminate(num, stack):
-    print 'singnal num:{0} stack:{1}'.format(num, stack)
+    print 'signal num:{0} stack:{1}'.format(num, stack)
     _terminate.set()
     os.kill(os.getpid(), signal.SIGINT)
 

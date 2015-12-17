@@ -4,6 +4,7 @@ from doshit import task
 #import doshit.settings as s
 #s.DOSHIT_QUEUE = 'other'
 
+
 @task
 def add(a, b):
     print 'adding {0} {1}'.format(a, b)
@@ -20,3 +21,19 @@ def echo(text):
 @task
 def error():
     raise ValueError('you ant got no values bro')
+
+
+@task
+def mem_error():
+    MEGA = 10 ** 6
+    MEGA_STR = ' ' * MEGA
+    i = 0
+    ar = []
+    while i < 100:
+        ar.append(MEGA_STR + str(i))
+
+
+@task
+def sleep(sleep_for):
+    import time, sys
+    time.sleep(sleep_for)

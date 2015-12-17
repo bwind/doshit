@@ -7,6 +7,7 @@ import sys
 DOSHIT_REDIS = {"host": "localhost", "port": 6379, "db": 0 }
 DOSHIT_QUEUE = 'default'
 DOSHIT_APP_PREFIX = 'doshit'
+DOSHIT_TASK_VIRTUAL_MEMORY_LIMIT = -1
 
 # load any values that are a part of the environment varabiles.
 if 'DOSHIT_REDIS' in os.environ:
@@ -20,6 +21,9 @@ if 'DOSHIT_QUEUE' in os.environ:
 
 if 'DOSHIT_APP_PREFIX' in os.environ:
     DOSHIT_REDIS = os.environ['DOSHIT_APP_PREFIX']
+
+if 'DOSHIT_TASK_VIRTUAL_MEMORY_LIMIT' in os.environ:
+    DOSHIT_TASK_VIRTUAL_MEMORY_LIMIT = os.environ['DOSHIT_TASK_VIRTUAL_MEMORY_LIMIT']
 
 # look for other settings.py files, if they exist load them.
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

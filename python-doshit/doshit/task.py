@@ -7,9 +7,21 @@ from common import STATE_PENDING
 from common import RESULT_FAILED
 from common import RESULT_SUCCESSFUL
 
-from redis_keys import get_task_hash_key
-from redis_keys import get_pending_list_key
-from redis_keys import get_results_channel_key
+from common import TASK_HKEY_FUNCTION
+from common import TASK_HKEY_STATE
+from common import TASK_HKEY_ARGS
+from common import TASK_HKEY_VIRTUAL_MEMORY_LIMIT
+from common import TASK_HKEY_PENDING_CREATED
+from common import TASK_HKEY_RESULT
+from common import TASK_HKEY_RESULT_VALUE
+from common import TASK_HKEY_ERROR_REASON
+from common import TASK_HKEY_ERROR_EXCEPTION
+
+from common import get_task_hash_key
+from common import get_pending_list_key
+from common import get_results_channel_key
+from common import get_command_channel_key
+
 import json_serializer as json
 
 from inspect import getcallargs
@@ -26,7 +38,6 @@ class AsyncResult(object):
         self.result_value = None
         self.error_reason = None
         self.error_exception = None
-        self.error_stacktrace = None
 
     def __str__(self):
         return self._task_hash_key
@@ -36,6 +47,10 @@ class AsyncResult(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
+    def cancel(self):
+        self._redis.publish(get_command_channel_key(),
+                            'kill-task:{0}'.format(self._task_hash_key))
 
     def close(self):
         if self._pubsub:
@@ -60,16 +75,14 @@ class AsyncResult(object):
         (self.result,
          result_value,
          self.error_reason,
-         self.error_exception,
-         self.error_stacktrace) = self._redis.hmget(self._task_hash_key,
-                                                    ('result',
-                                                     'result-value',
-                                                     'error-reason',
-                                                     'error-exception',
-                                                     'error-stacktrace'))
+         self.error_exception) = self._redis.hmget(self._task_hash_key,
+                                                    (TASK_HKEY_RESULT,
+                                                     TASK_HKEY_RESULT_VALUE,
+                                                     TASK_HKEY_ERROR_REASON,
+                                                     TASK_HKEY_ERROR_EXCEPTION))
 
         if result_value:
-            self.result_value = json.load(result_value)
+            self.result_value = json.loads(result_value)
 
         return self.get_result()
 
@@ -94,12 +107,14 @@ def task(func):
 
     def exec_async(*args, **kwargs):
 
-        args_json = json.dump(getcallargs(_func, *args, **kwargs), indent=2)
-
-        redis = create_redis()
-
         task_id = kwargs.pop('task_id', str(uuid4()))
         queue = kwargs.pop('queue', settings.DOSHIT_QUEUE)
+        virtual_memory_limit = kwargs.pop('virtual_memory_limit',
+                                          settings.DOSHIT_TASK_VIRTUAL_MEMORY_LIMIT)
+
+        args_json = json.dumps(getcallargs(_func, *args, **kwargs), indent=2)
+
+        redis = create_redis()
 
         task_hash_key = get_task_hash_key(task_id)
         pending_list_key = get_pending_list_key(queue)
@@ -113,10 +128,11 @@ def task(func):
         pipe.lpush(pending_list_key, task_id)
 
         pipe.hmset(task_hash_key,
-                   {'function': func.__name__,
-                   'state': STATE_PENDING,
-                   'pending-created': json.strftime(datetime.utcnow()),
-                   'args': args_json})
+                   {TASK_HKEY_FUNCTION: func.__name__,
+                   TASK_HKEY_STATE: STATE_PENDING,
+                   TASK_HKEY_PENDING_CREATED: json.strftime(datetime.utcnow()),
+                   TASK_HKEY_ARGS: args_json,
+                   TASK_HKEY_VIRTUAL_MEMORY_LIMIT: virtual_memory_limit})
 
         pipe.execute()
 

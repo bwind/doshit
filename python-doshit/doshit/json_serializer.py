@@ -57,12 +57,12 @@ class JsonDateTimeDecoder(json.JSONDecoder):
             return d
 
 
-def dump(dict, **kwargs):
+def dumps(dict, **kwargs):
     """
     returns a string / json dump for the given dictionary.
     """
     return json.dumps(dict, cls=JsonDateTimeEncoder, **kwargs)
 
 
-def load(json_text, **kwargs):
+def loads(json_text, **kwargs):
     return json.loads(json_text, cls=JsonDateTimeDecoder, **kwargs)

@@ -27,6 +27,11 @@ import json_serializer as json
 from inspect import getcallargs
 
 
+def canel_task(redis, task_id):
+    redis.publish(get_command_channel_key(),
+                 'task:kill:{0}'.format(get_task_hash_key(task_id)))
+
+
 class AsyncResult(object):
 
     def __init__(self, redis, pubsub, task_hash_key, task_id):
@@ -49,8 +54,7 @@ class AsyncResult(object):
         self.close()
 
     def cancel(self):
-        self._redis.publish(get_command_channel_key(),
-                            'kill-task:{0}'.format(self._task_hash_key))
+        canel_task(self._redis, self.task_id)
 
     def close(self):
         if self._pubsub:

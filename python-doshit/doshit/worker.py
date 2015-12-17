@@ -112,26 +112,33 @@ def _execute_task(module,
 
     child_pid = os.fork()
     if child_pid != 0:
-        pid = 0
-        while pid == 0:
+        try:
+            while not _terminate.is_set():
 
-            (pid, returncode) = os.waitpid(child_pid, os.P_NOWAIT)
-            if pid:
-                return False, returncode
+                (pid, returncode) = os.waitpid(child_pid, os.P_NOWAIT)
+                if pid:
+                    return False, returncode
 
-            message = pubsub.get_message()
-            if message:
-                message = message['data']
+                message = pubsub.get_message()
+                if message:
+                    message = message['data']
+                    if (message == 'task:kill:all'):
+                        break
+                    elif (message.startswith('task:kill:')
+                        and task_hash_key == message.replace('task:kill:', '')):
+                        break
 
-            if message and message.startswith('kill-task:'):
-                if task_hash_key == message.replace('kill-task:', ''):
-                    print 'killing child'
-                    os.kill(child_pid, signal.SIGKILL)
-                    os.waitpid(child_pid, os.P_WAIT)
-                    print 'killed child'
-                    return True, returncode
+                sleep(0.01)
 
-            sleep(0.01)
+        except KeyboardInterrupt:
+            _terminate.set()
+
+        print 'killing child'
+        os.kill(child_pid, signal.SIGKILL)
+        os.waitpid(child_pid, os.P_WAIT)
+        print 'killed child'
+        return True, returncode
+
     else:
         try:
             func = getattr(module, function)
@@ -159,6 +166,9 @@ def _execute_task(module,
                           task_hash_key,
                           RESULT_SUCCESSFUL,
                           result_value)
+
+        except KeyboardInterrupt:
+            os._exit(0)
 
         except Exception as ex:
 

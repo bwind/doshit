@@ -11,7 +11,9 @@ from tasks import sleep
 add_result = add.exec_async(1, 2)
 echo_result = echo.exec_async('shit yeeah')
 error_result = error.exec_async()
-mem_error_result = mem_error.exec_async(virtual_memory_limit=1024)
+
+mem_error.virtual_memory_limit = 1024
+mem_error_result = mem_error.exec_async()
 
 print ''
 print str(add_result)

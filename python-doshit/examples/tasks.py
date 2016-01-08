@@ -5,25 +5,24 @@ from doshit import task
 #s.DOSHIT_QUEUE = 'other'
 
 
-@task
+@task()
 def add(a, b):
     print 'adding {0} {1}'.format(a, b)
     return a + b
 
 
-@task
+@task()
 def echo(text):
     if hasattr(echo, 'task_id'):
         print echo.task_id
     return text
 
 
-@task
+@task()
 def error():
     raise ValueError('you ant got no values bro')
 
-
-@task
+@task(virtual_memory_limit=1020*1024)
 def mem_error():
     MEGA = 10 ** 6
     MEGA_STR = ' ' * MEGA
@@ -33,7 +32,7 @@ def mem_error():
         ar.append(MEGA_STR + str(i))
 
 
-@task
+@task()
 def sleep(sleep_for):
     import time, sys
     time.sleep(sleep_for)

@@ -3,7 +3,7 @@ import settings
 import json_serializer as json
 from json_serializer import strftime
 
-from common import create_redis
+from common import create_redis_connection
 from common import __version__
 
 from common import get_task_hash_key
@@ -144,7 +144,7 @@ def _execute_task(module,
             func = getattr(module, function)
             setattr(func, 'task_id', task_id)
 
-            redis = create_redis()
+            redis = create_redis_connection()
 
             if virtual_memory_limit:
                 if isinstance(virtual_memory_limit, basestring):
@@ -171,14 +171,13 @@ def _execute_task(module,
             os._exit(0)
 
         except Exception as ex:
-
+            print traceback.format_exc()
             _set_task_finished(redis, queue, task_id, task_hash_key,
                           RESULT_FAILED,
                           error_reason= '{0}: {1}'.format(type(ex), ex.message),
                           error_exception=traceback.format_exc())
         # exit forked child
         os._exit(0)
-
 
 def worker_server(module, queue):
 
@@ -187,7 +186,7 @@ def worker_server(module, queue):
     command_channel_key = get_command_channel_key()
 
     worker_uuid = uuid4()
-    redis = create_redis()
+    redis = create_redis_connection()
 
     pubsub = redis.pubsub(ignore_subscribe_messages=True)
     pubsub.subscribe(command_channel_key)
@@ -209,6 +208,7 @@ def worker_server(module, queue):
                                 TASK_HKEY_STATE,
                                 TASK_HKEY_ARGS,
                                 TASK_HKEY_VIRTUAL_MEMORY_LIMIT))
+            print task
 
             function = task[0]
             state = task[1]

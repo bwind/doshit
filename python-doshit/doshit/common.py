@@ -10,11 +10,13 @@ STATE_FINISHED = 'finished'
 RESULT_SUCCESSFUL = 'successful'
 RESULT_FAILED = 'failed'
 
-def create_redis():
-    if settings.DOSHIT_REDIS:
-        print 'redis connection:'
+def create_redis_connection(connection_dict=None):
+    print 'redis connection:'
+    if connection_dict:
+        print connection_dict
+        return Redis(**connection_dict)
+    elif settings.DOSHIT_REDIS:
         print settings.DOSHIT_REDIS
-
         return Redis(**settings.DOSHIT_REDIS)
     else:
         return Redis()
@@ -23,6 +25,7 @@ TASK_HKEY_FUNCTION = 'function'
 TASK_HKEY_STATE = 'state'
 TASK_HKEY_ARGS = 'args'
 TASK_HKEY_VIRTUAL_MEMORY_LIMIT = 'virtual-memory-limit'
+TASK_HKEY_USERNAME = 'username'
 
 TASK_HKEY_PENDING_CREATED = 'pending-created'
 TASK_HKEY_EXECUTING_CREATED = 'executing-created'

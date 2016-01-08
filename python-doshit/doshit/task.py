@@ -1,8 +1,8 @@
-from uuid import uuid4
+from uuid import uuid1
 from datetime import datetime
 
 import settings
-from common import create_redis
+from common import create_redis_connection
 from common import STATE_PENDING
 from common import RESULT_FAILED
 from common import RESULT_SUCCESSFUL
@@ -10,6 +10,7 @@ from common import RESULT_SUCCESSFUL
 from common import TASK_HKEY_FUNCTION
 from common import TASK_HKEY_STATE
 from common import TASK_HKEY_ARGS
+from common import TASK_HKEY_USERNAME
 from common import TASK_HKEY_VIRTUAL_MEMORY_LIMIT
 from common import TASK_HKEY_PENDING_CREATED
 from common import TASK_HKEY_RESULT
@@ -106,22 +107,49 @@ class AsyncResult(object):
         return self.get_result()
 
 
-def task(func):
-    _func = func
+class task(object):
+    """
+    this is the task decorator.
+    """
+    def __init__(self,
+                 username=None,
+                 task_id=None,
+                 app_prefix=settings.DOSHIT_APP_PREFIX,
+                 queue=settings.DOSHIT_QUEUE,
+                 virtual_memory_limit=settings.DOSHIT_TASK_VIRTUAL_MEMORY_LIMIT,
+                 execute_time_limit=None,
+                 result_time_to_live=None,
+                 attributes={},
+                 redis_connection=settings.DOSHIT_REDIS):
 
-    def exec_async(*args, **kwargs):
+        self.username = username
+        self.task_id = task_id
+        self.app_prefix = app_prefix
+        self.queue = queue
+        self.virtual_memory_limit = virtual_memory_limit
+        self.execute_time_limit = execute_time_limit
+        self.result_time_to_live = result_time_to_live
+        self.attributes = attributes
+        self.redis_connection = redis_connection
 
-        task_id = kwargs.pop('task_id', str(uuid4()))
-        queue = kwargs.pop('queue', settings.DOSHIT_QUEUE)
-        virtual_memory_limit = kwargs.pop('virtual_memory_limit',
-                                          settings.DOSHIT_TASK_VIRTUAL_MEMORY_LIMIT)
+    def __call__(self, f):
+        f.exec_async = self.exec_async
+        f.task = self
+        self.func = f
+        return f
 
-        args_json = json.dumps(getcallargs(_func, *args, **kwargs), indent=2)
+    def exec_async(self, *args, **kwargs):
+        if self.task_id:
+            task_id = self.task_id
+        else:
+            task_id = uuid1()
+        print self.func
+        args_json = json.dumps(getcallargs(self.func, *args, **kwargs), indent=2)
 
-        redis = create_redis()
+        redis = create_redis_connection(self.redis_connection)
 
         task_hash_key = get_task_hash_key(task_id)
-        pending_list_key = get_pending_list_key(queue)
+        pending_list_key = get_pending_list_key(self.queue)
         results_channel_key = get_results_channel_key()
 
         pubsub = redis.pubsub(ignore_subscribe_messages=True)
@@ -131,16 +159,16 @@ def task(func):
 
         pipe.lpush(pending_list_key, task_id)
 
+        print self.virtual_memory_limit
+
         pipe.hmset(task_hash_key,
-                   {TASK_HKEY_FUNCTION: func.__name__,
-                   TASK_HKEY_STATE: STATE_PENDING,
-                   TASK_HKEY_PENDING_CREATED: json.strftime(datetime.utcnow()),
+                   {TASK_HKEY_FUNCTION: self.func.__name__,
                    TASK_HKEY_ARGS: args_json,
-                   TASK_HKEY_VIRTUAL_MEMORY_LIMIT: virtual_memory_limit})
+                   TASK_HKEY_STATE: STATE_PENDING,
+                   TASK_HKEY_USERNAME: self.username,
+                   TASK_HKEY_PENDING_CREATED: json.strftime(datetime.utcnow()),
+                   TASK_HKEY_VIRTUAL_MEMORY_LIMIT: self.virtual_memory_limit})
 
         pipe.execute()
 
         return AsyncResult(redis, pubsub, task_hash_key, task_id)
-
-    func.exec_async = exec_async
-    return func

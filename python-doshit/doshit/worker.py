@@ -311,9 +311,9 @@ def worker_server(module, queue):
                     error_exception=traceback.format_exc(),
                     timeout=6)
 
-    cmd_pubsub.close()
-
     _deregister_worker_with_timeout(worker_uuid, timeout=2)
+
+    cmd_pubsub.close()
 
 
 def main():

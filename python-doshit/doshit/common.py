@@ -10,16 +10,29 @@ STATE_FINISHED = 'finished'
 RESULT_SUCCESSFUL = 'successful'
 RESULT_FAILED = 'failed'
 
-def create_redis_connection(connection_dict=None):
+def create_redis_connection(connection_dict=None, timeout=None):
     print 'redis connection:'
+
     if connection_dict:
-        print connection_dict
-        return Redis(**connection_dict)
+        con = connection_dict
     elif settings.DOSHIT_REDIS:
-        print settings.DOSHIT_REDIS
-        return Redis(**settings.DOSHIT_REDIS)
+        con = settings.DOSHIT_REDIS
+
+    if con:
+        if timeout is not None:
+            con['socket_timeout'] = timeout
+            con['socket_connect_timeout'] = timeout
+
+        redis = Redis(**con)
+    elif timeout is not None:
+        redis = Redis(socket_timeout=timeout, socket_connect_timeout=timeout)
     else:
-        return Redis()
+        redis = Redis()
+
+    print redis
+    
+    return redis
+
 
 TASK_HKEY_FUNCTION = 'function'
 TASK_HKEY_STATE = 'state'

@@ -32,9 +32,8 @@ from common import RESULT_SUCCESSFUL
 from common import RESULT_FAILED
 
 from multiprocessing import Process
-from redis.exceptions import ConnectionError
-
 from os_tools import set_virtual_memory_limit
+from redis_tools import block_until_connection
 
 import os
 import sys
@@ -48,7 +47,7 @@ from socket import gethostname
 from importlib import import_module
 from time import sleep
 
-
+@block_until_connection
 def _register_worker(redis, worker_uuid):
     redis.hmset(get_worker_hash_key(worker_uuid),
                 {
@@ -62,11 +61,11 @@ def _register_worker(redis, worker_uuid):
                 })
 
 
-def _deregister_worker(redis, worker_uuid):
+def _deregister_worker_with_timeout(worker_uuid, timeout=2):
+    redis = create_redis_connection(timeout=timeout)
     redis.delete(get_worker_hash_key(worker_uuid))
 
-
-def _set_task_finished(redis,
+def _set_task_finished_no_blocking(redis,
                   queue,
                   task_id,
                   task_hash_key,
@@ -100,11 +99,79 @@ def _set_task_finished(redis,
 
     print '\nresult:{0}\nresult-value:{1}\nerror-reason:{2}\n'.format(result, result_value, error_reason)
 
+@block_until_connection
+def _set_task_finished(redis,
+                  queue,
+                  task_id,
+                  task_hash_key,
+                  result=True,
+                  result_value=None,
+                  error_reason=None,
+                  error_exception=None):
+
+    _set_task_finished_no_blocking(redis,
+                                   queue,
+                                   task_id,
+                                   task_hash_key,
+                                   result,
+                                   result_value,
+                                   error_reason,
+                                   error_exception)
+
+def _set_task_finished_with_timeout(
+                  queue,
+                  task_id,
+                  task_hash_key,
+                  result=True,
+                  result_value=None,
+                  error_reason=None,
+                  error_exception=None,
+                  timeout=6):
+
+    redis = create_redis_connection(timeout=timeout)
+    _set_task_finished_no_blocking(redis,
+                                   queue,
+                                   task_id,
+                                   task_hash_key,
+                                   result,
+                                   result_value,
+                                   error_reason,
+                                   error_exception)
+
+
+@block_until_connection
+def _set_task_exexcuting(redis, task_hash_key):
+    redis.hmset(task_hash_key,
+                {TASK_HKEY_STATE: STATE_EXECUTING,
+                TASK_HKEY_EXECUTING_CREATED: strftime(datetime.utcnow())})
+
+@block_until_connection
+def _subscribe_to_cmd_pubsub(redis):
+    pubsub = redis.pubsub(ignore_subscribe_messages=True)
+    pubsub.subscribe(get_command_channel_key())
+    return pubsub
+
+@block_until_connection
+def _get_next_task_id(redis, queue, timeout=1):
+    return redis.brpoplpush(get_pending_list_key(queue),
+                            get_executing_list_key(queue),
+                            timeout=timeout)
+
+@block_until_connection
+def _poll_kill_task(cmd_pubsub, task_hash_key):
+    message = cmd_pubsub.get_message()
+    if message:
+        message = message['data']
+        if (message == 'task:kill:all'):
+            return True
+        elif (message.startswith('task:kill:')
+            and task_hash_key == message.replace('task:kill:', '')):
+            return True
+    return False
 
 def _exexcute_task(module, queue, task_id, task_hash_key):
 
     redis = create_redis_connection()
-
     try:
         task = redis.hmget(task_hash_key,
                             (TASK_HKEY_FUNCTION,
@@ -131,9 +198,7 @@ def _exexcute_task(module, queue, task_id, task_hash_key):
                                                                                                     state))
             return
 
-        redis.hmset(task_hash_key,
-                    {TASK_HKEY_STATE: STATE_EXECUTING,
-                    TASK_HKEY_EXECUTING_CREATED: strftime(datetime.utcnow())})
+        _set_task_exexcuting(redis, task_hash_key)
 
         print 'executing task_id:{0}\nfunction: {1}\nargs: {2}\n virtual_memory_limit:{3}\n'.format(task_id,
                                                                          function,
@@ -159,17 +224,14 @@ def _exexcute_task(module, queue, task_id, task_hash_key):
             result_value = json.dumps(result_value, indent=2)
 
         _set_task_finished(redis,
-                          queue,
-                          task_id,
-                          task_hash_key,
-                          RESULT_SUCCESSFUL,
-                          result_value)
+                           queue,
+                           task_id,
+                           task_hash_key,
+                           RESULT_SUCCESSFUL,
+                           result_value)
 
     except KeyboardInterrupt:
-        _set_task_finished(redis, queue, task_id, task_hash_key,
-                      RESULT_FAILED,
-                      error_reason= 'task interupted',
-                      error_exception=traceback.format_exc())
+        pass
 
     except Exception as ex:
         print traceback.format_exc()
@@ -183,19 +245,19 @@ def worker_server(module, queue):
 
     pending_key = get_pending_list_key(queue)
     executing_key = get_executing_list_key(queue)
-    command_channel_key = get_command_channel_key()
 
     worker_uuid = uuid4()
     redis = create_redis_connection()
 
-    pubsub = redis.pubsub(ignore_subscribe_messages=True)
-    pubsub.subscribe(command_channel_key)
+    cmd_pubsub = _subscribe_to_cmd_pubsub(redis)
 
     _register_worker(redis, worker_uuid)
 
+    task_id = None
+    task_hash_key = None
     try:
         while True:
-            task_id = redis.brpoplpush(pending_key, executing_key, timeout=1)
+            task_id = _get_next_task_id(redis, queue, timeout=1)
             # if task_id is None we got a timeout
             if task_id is None:
                 continue
@@ -206,20 +268,16 @@ def worker_server(module, queue):
 
             process = Process(target=_exexcute_task,
                               args=(module, queue, task_id, task_hash_key))
-            process.start()
             terminated = False
+            killed = False
+            process.start()
 
             while process.is_alive():
                 process.join(0.2)
 
-                message = pubsub.get_message()
-                if message:
-                    message = message['data']
-                    if (message == 'task:kill:all'):
-                        break
-                    elif (message.startswith('task:kill:')
-                        and task_hash_key == message.replace('task:kill:', '')):
-                        break
+                if _poll_kill_task(cmd_pubsub, task_hash_key):
+                    killed = True
+                    break
 
             if process.is_alive():
                 terminated = True
@@ -229,7 +287,7 @@ def worker_server(module, queue):
             if terminated:
                 _set_task_finished(redis, queue, task_id, task_hash_key,
                     RESULT_FAILED,
-                    error_reason= "task was terminated")
+                    error_reason= "task was pubsub killed" if killed else "task was terminated")
 
             elif (not hasattr(process, '_popen')
                or not hasattr(process._popen, 'returncode')):
@@ -243,13 +301,19 @@ def worker_server(module, queue):
                     error_reason= "task's process returncode was {0}".format(process._popen.returncode))
 
             task_id = None
+            task_hash_key = None
 
     except KeyboardInterrupt:
-        pass
+        if (task_id is not None and task_hash_key is not None):
+            _set_task_finished_with_timeout(queue, task_id, task_hash_key,
+                    RESULT_FAILED,
+                    error_reason= 'task / process was killed before completion',
+                    error_exception=traceback.format_exc(),
+                    timeout=6)
 
-    pubsub.close()
+    cmd_pubsub.close()
 
-    _deregister_worker(redis, worker_uuid)
+    _deregister_worker_with_timeout(worker_uuid, timeout=2)
 
 
 def main():

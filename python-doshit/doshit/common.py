@@ -11,7 +11,6 @@ RESULT_SUCCESSFUL = 'successful'
 RESULT_FAILED = 'failed'
 
 def create_redis_connection(connection_dict=None, timeout=None):
-    print 'redis connection:'
 
     if connection_dict:
         con = connection_dict
@@ -29,8 +28,6 @@ def create_redis_connection(connection_dict=None, timeout=None):
     else:
         redis = Redis()
 
-    print redis
-    
     return redis
 
 

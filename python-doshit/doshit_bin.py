@@ -46,8 +46,7 @@ if __name__ == '__main__':
         or sys.argv[1] == '-h'
         or sys.argv[1] == '--help'):
         _print_help()
-        sys.exit(0)
 
     elif (sys.argv[1] == 'worker'):
         _trim_first_arg()
-        sys.exit(doshit.worker.main())
+        doshit.worker.main()

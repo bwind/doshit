@@ -29,8 +29,14 @@ Doshit = function(url, appprefix, queueprefix) {
   queries = redis.createClient({
     url: url
   });
+  queries.on('error', function(err) {
+    return doshit.emit('error', err);
+  });
   subscriptions = redis.createClient({
     url: url
+  });
+  subscriptions.on('error', function(err) {
+    return doshit.emit('error', err);
   });
   subscriptions.on('message', function(channel, message) {
     var taskid;

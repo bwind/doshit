@@ -20,7 +20,11 @@ Doshit = (url, appprefix, queueprefix) ->
   taskcallbacks = {}
 
   queries = redis.createClient url: url
+  queries.on 'error', (err) ->
+    doshit.emit 'error', err
   subscriptions = redis.createClient url: url
+  subscriptions.on 'error', (err) ->
+    doshit.emit 'error', err
 
   subscriptions.on 'message', (channel, message) ->
     return unless channel is resultschannel

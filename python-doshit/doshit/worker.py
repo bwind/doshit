@@ -409,7 +409,7 @@ usage='to run the example do:\n\
 3) python ../doshit/worker.py tasks\n\
 4) python call.py',
 
-    version=__version__
+    prog='doshit'+__version__
     )
 
     parser.add_argument('-q', '--queue',

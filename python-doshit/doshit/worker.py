@@ -120,7 +120,7 @@ def _set_task_finished_no_blocking(redis,
     pipe.lrem(executing_list_key, task_id, 0)
     pipe.execute()
 
-    print 'pub ' + results_channel_key + ' ' + task_hash_key
+    print('pub ' + results_channel_key + ' ' + task_hash_key)
     redis.publish(results_channel_key, task_hash_key)
 
     if logger:
@@ -210,7 +210,7 @@ def _exexcute_task(module, queue, task_id, task_hash_key):
                             TASK_HKEY_STATE,
                             TASK_HKEY_ARGS,
                             TASK_HKEY_VIRTUAL_MEMORY_LIMIT))
-        print task
+        print(task)
 
         function = task[0]
         state = task[1]
@@ -312,7 +312,7 @@ def worker_server(module, queue):
 
             task_hash_key = get_task_hash_key(task_id)
 
-            print task_hash_key
+            print(task_hash_key)
             logger.info('wtf')
             process = Process(target=_exexcute_task,
                               args=(module, queue, task_id, task_hash_key))
@@ -394,7 +394,7 @@ def main():
 
     import logging
     import sys
-    print sys.argv
+    print(sys.argv)
 
     logger = _create_logger()
     logger.info('hello')

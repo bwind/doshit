@@ -143,7 +143,7 @@ class task(object):
             task_id = self.task_id
         else:
             task_id = uuid1()
-        print self.func
+        print(self.func)
         args_json = json.dumps(getcallargs(self.func, *args, **kwargs), indent=2)
 
         redis = create_redis_connection(self.redis_connection)
@@ -159,7 +159,7 @@ class task(object):
 
         pipe.lpush(pending_list_key, task_id)
 
-        print self.virtual_memory_limit
+        print(self.virtual_memory_limit)
 
         pipe.hmset(task_hash_key,
                    {TASK_HKEY_FUNCTION: self.func.__name__,

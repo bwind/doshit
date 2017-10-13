@@ -1,7 +1,7 @@
 from uuid import uuid1
 from datetime import datetime
 
-import doshit.settings
+import doshit.settings as settings
 from doshit.common import create_redis_connection
 from doshit.common import STATE_PENDING
 from doshit.common import RESULT_FAILED

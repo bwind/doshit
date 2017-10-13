@@ -1,4 +1,4 @@
-import doshit.settings
+import doshit.settings as settings
 
 import doshit.json_serializer as json
 from doshit.json_serializer import strftime

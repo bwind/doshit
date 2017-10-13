@@ -1,7 +1,7 @@
 __version__ = '0.1.0'
 
 from redis import Redis
-import settings
+import doshit.settings
 
 STATE_PENDING = 'pending'
 STATE_EXECUTING = 'executing'

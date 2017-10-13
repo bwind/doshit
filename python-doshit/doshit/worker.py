@@ -1,39 +1,39 @@
-import settings
+import doshit.settings
 
-import json_serializer as json
-from json_serializer import strftime
+import doshit.json_serializer as json
+from doshit.json_serializer import strftime
 
-from common import create_redis_connection
-from common import __version__
+from doshit.common import create_redis_connection
+from doshit.common import __version__
 
-from common import get_task_hash_key
-from common import get_pending_list_key
-from common import get_executing_list_key
-from common import get_results_channel_key
-from common import get_command_channel_key
-from common import get_worker_hash_key
+from doshit.common import get_task_hash_key
+from doshit.common import get_pending_list_key
+from doshit.common import get_executing_list_key
+from doshit.common import get_results_channel_key
+from doshit.common import get_command_channel_key
+from doshit.common import get_worker_hash_key
 
-from common import TASK_HKEY_FUNCTION
-from common import TASK_HKEY_STATE
-from common import TASK_HKEY_ARGS
-from common import TASK_HKEY_PENDING_CREATED
-from common import TASK_HKEY_EXECUTING_CREATED
-from common import TASK_HKEY_FINISHED_CREATED
-from common import TASK_HKEY_RESULT
-from common import TASK_HKEY_RESULT_VALUE
-from common import TASK_HKEY_ERROR_REASON
-from common import TASK_HKEY_ERROR_EXCEPTION
-from common import TASK_HKEY_VIRTUAL_MEMORY_LIMIT
+from doshit.common import TASK_HKEY_FUNCTION
+from doshit.common import TASK_HKEY_STATE
+from doshit.common import TASK_HKEY_ARGS
+from doshit.common import TASK_HKEY_PENDING_CREATED
+from doshit.common import TASK_HKEY_EXECUTING_CREATED
+from doshit.common import TASK_HKEY_FINISHED_CREATED
+from doshit.common import TASK_HKEY_RESULT
+from doshit.common import TASK_HKEY_RESULT_VALUE
+from doshit.common import TASK_HKEY_ERROR_REASON
+from doshit.common import TASK_HKEY_ERROR_EXCEPTION
+from doshit.common import TASK_HKEY_VIRTUAL_MEMORY_LIMIT
 
-from common import STATE_PENDING
-from common import STATE_EXECUTING
-from common import STATE_FINISHED
-from common import RESULT_SUCCESSFUL
-from common import RESULT_FAILED
+from doshit.common import STATE_PENDING
+from doshit.common import STATE_EXECUTING
+from doshit.common import STATE_FINISHED
+from doshit.common import RESULT_SUCCESSFUL
+from doshit.common import RESULT_FAILED
 
 from multiprocessing import Process
-from os_tools import set_virtual_memory_limit
-from redis_tools import block_until_connection
+from doshit.os_tools import set_virtual_memory_limit
+from doshit.redis_tools import block_until_connection
 
 import os
 import sys

@@ -1,29 +1,29 @@
 from uuid import uuid1
 from datetime import datetime
 
-import settings
-from common import create_redis_connection
-from common import STATE_PENDING
-from common import RESULT_FAILED
-from common import RESULT_SUCCESSFUL
+import doshit.settings
+from doshit.common import create_redis_connection
+from doshit.common import STATE_PENDING
+from doshit.common import RESULT_FAILED
+from doshit.common import RESULT_SUCCESSFUL
 
-from common import TASK_HKEY_FUNCTION
-from common import TASK_HKEY_STATE
-from common import TASK_HKEY_ARGS
-from common import TASK_HKEY_USERNAME
-from common import TASK_HKEY_VIRTUAL_MEMORY_LIMIT
-from common import TASK_HKEY_PENDING_CREATED
-from common import TASK_HKEY_RESULT
-from common import TASK_HKEY_RESULT_VALUE
-from common import TASK_HKEY_ERROR_REASON
-from common import TASK_HKEY_ERROR_EXCEPTION
+from doshit.common import TASK_HKEY_FUNCTION
+from doshit.common import TASK_HKEY_STATE
+from doshit.common import TASK_HKEY_ARGS
+from doshit.common import TASK_HKEY_USERNAME
+from doshit.common import TASK_HKEY_VIRTUAL_MEMORY_LIMIT
+from doshit.common import TASK_HKEY_PENDING_CREATED
+from doshit.common import TASK_HKEY_RESULT
+from doshit.common import TASK_HKEY_RESULT_VALUE
+from doshit.common import TASK_HKEY_ERROR_REASON
+from doshit.common import TASK_HKEY_ERROR_EXCEPTION
 
-from common import get_task_hash_key
-from common import get_pending_list_key
-from common import get_results_channel_key
-from common import get_command_channel_key
+from doshit.common import get_task_hash_key
+from doshit.common import get_pending_list_key
+from doshit.common import get_results_channel_key
+from doshit.common import get_command_channel_key
 
-import json_serializer as json
+import doshit.json_serializer as json
 
 from inspect import getcallargs
 

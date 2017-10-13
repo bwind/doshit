@@ -1,3 +1,3 @@
 from doshit.task import task
-from common import __version__
+from doshit.common import __version__
 

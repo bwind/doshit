@@ -142,7 +142,7 @@ class task(object):
         if self.task_id:
             task_id = self.task_id
         else:
-            task_id = uuid1()
+            task_id = str(uuid1())
         print(self.func)
         args_json = json.dumps(getcallargs(self.func, *args, **kwargs), indent=2)
 

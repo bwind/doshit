@@ -124,6 +124,8 @@ class task(object):
 
         self.username = username
         self.task_id = task_id
+        if hasattr(self.task_id, 'decode'):
+            self.task_id=self.task_id.decode('ascii')
         self.app_prefix = app_prefix
         self.queue = queue
         self.virtual_memory_limit = virtual_memory_limit
@@ -143,6 +145,9 @@ class task(object):
             task_id = self.task_id
         else:
             task_id = str(uuid1())
+        if hasattr(self.task_id, 'decode'):
+            self.task_id=self.task_id.decode('ascii')
+            
         print(self.func)
         args_json = json.dumps(getcallargs(self.func, *args, **kwargs), indent=2)
 

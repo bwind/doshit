@@ -239,7 +239,7 @@ def _exexcute_task(module, queue, task_id, task_hash_key):
         logger.info('--------------------------------------')
 
         if virtual_memory_limit:
-            if isinstance(virtual_memory_limit, basestring):
+            if isinstance(virtual_memory_limit, str):
                 virtual_memory_limit = int(virtual_memory_limit)
             if virtual_memory_limit > 0:
                 set_virtual_memory_limit(virtual_memory_limit)

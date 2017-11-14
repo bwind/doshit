@@ -22,11 +22,11 @@ def create_redis_connection(connection_dict=None, timeout=None):
             con['socket_timeout'] = timeout
             con['socket_connect_timeout'] = timeout
 
-        redis = Redis(**con)
+        redis = Redis(**con, decode_responses=True)
     elif timeout is not None:
-        redis = Redis(socket_timeout=timeout, socket_connect_timeout=timeout)
+        redis = Redis(socket_timeout=timeout, socket_connect_timeout=timeout, decode_responses=True)
     else:
-        redis = Redis()
+        redis = Redis(decode_responses=True)
 
     return redis
 

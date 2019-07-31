@@ -13,22 +13,23 @@ class custom_install(install):
         try:
             copy2('doshit_bin.py', dest)
             install.run(self)
-        except IOError, e:
+        except IOError as e:
             if e.errno == errno.EACCES:
-                print ''
-                print 'Permission denied:'
-                print 'could not copy to {0}'.format(dest)
-                print ''
-                print 'try using:'
-                print '$ sudo python setup.py install'
-                print 'or'
-                print '$ su'
-                print '$ python setup.py install'
-                print ''
+                print('')
+                print('Permission denied:')
+                print('could not copy to {0}'.format(dest))
+                print('')
+                print('try using:')
+                print('$ sudo python setup.py install')
+                print('or')
+                print('$ su')
+                print('$ python setup.py install')
+                print('')
 
             raise e
 
-print setup(name='doshit',
+
+print( setup(name='doshit',
       version='0.1.0',
       description='doshit',
       author='MetOcean Solutions',
@@ -37,3 +38,4 @@ print setup(name='doshit',
       packages=['doshit'],
 
       cmdclass={'install': custom_install})
+)

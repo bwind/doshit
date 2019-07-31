@@ -14,7 +14,7 @@ if 'DOSHIT_REDIS' in os.environ:
     try:
         DOSHIT_REDIS = json.loads(os.environ['DOSHIT_REDIS'])
     except:
-        print 'failed to load DOSHIT_REDIS json: %s' %  os.environ['DOSHIT_REDIS']
+        print('failed to load DOSHIT_REDIS json: %s' %  os.environ['DOSHIT_REDIS'])
 
 if 'DOSHIT_QUEUE' in os.environ:
     DOSHIT_QUEUE = os.environ['DOSHIT_QUEUE']

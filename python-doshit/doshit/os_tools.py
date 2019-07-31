@@ -17,4 +17,4 @@ def set_virtual_memory_limit(limit_in_bytes):
 
     soft, hard = resource.getrlimit(resource.RLIMIT_AS)
 
-    print 'virtual memory limit changed to:', soft
+    print('virtual memory limit changed to:', soft)

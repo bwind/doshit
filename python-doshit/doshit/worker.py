@@ -1,39 +1,39 @@
-import settings
+import doshit.settings as settings
 
-import json_serializer as json
-from json_serializer import strftime
+import doshit.json_serializer as json
+from doshit.json_serializer import strftime
 
-from common import create_redis_connection
-from common import __version__
+from doshit.common import create_redis_connection
+from doshit.common import __version__
 
-from common import get_task_hash_key
-from common import get_pending_list_key
-from common import get_executing_list_key
-from common import get_results_channel_key
-from common import get_command_channel_key
-from common import get_worker_hash_key
+from doshit.common import get_task_hash_key
+from doshit.common import get_pending_list_key
+from doshit.common import get_executing_list_key
+from doshit.common import get_results_channel_key
+from doshit.common import get_command_channel_key
+from doshit.common import get_worker_hash_key
 
-from common import TASK_HKEY_FUNCTION
-from common import TASK_HKEY_STATE
-from common import TASK_HKEY_ARGS
-from common import TASK_HKEY_PENDING_CREATED
-from common import TASK_HKEY_EXECUTING_CREATED
-from common import TASK_HKEY_FINISHED_CREATED
-from common import TASK_HKEY_RESULT
-from common import TASK_HKEY_RESULT_VALUE
-from common import TASK_HKEY_ERROR_REASON
-from common import TASK_HKEY_ERROR_EXCEPTION
-from common import TASK_HKEY_VIRTUAL_MEMORY_LIMIT
+from doshit.common import TASK_HKEY_FUNCTION
+from doshit.common import TASK_HKEY_STATE
+from doshit.common import TASK_HKEY_ARGS
+from doshit.common import TASK_HKEY_PENDING_CREATED
+from doshit.common import TASK_HKEY_EXECUTING_CREATED
+from doshit.common import TASK_HKEY_FINISHED_CREATED
+from doshit.common import TASK_HKEY_RESULT
+from doshit.common import TASK_HKEY_RESULT_VALUE
+from doshit.common import TASK_HKEY_ERROR_REASON
+from doshit.common import TASK_HKEY_ERROR_EXCEPTION
+from doshit.common import TASK_HKEY_VIRTUAL_MEMORY_LIMIT
 
-from common import STATE_PENDING
-from common import STATE_EXECUTING
-from common import STATE_FINISHED
-from common import RESULT_SUCCESSFUL
-from common import RESULT_FAILED
+from doshit.common import STATE_PENDING
+from doshit.common import STATE_EXECUTING
+from doshit.common import STATE_FINISHED
+from doshit.common import RESULT_SUCCESSFUL
+from doshit.common import RESULT_FAILED
 
 from multiprocessing import Process
-from os_tools import set_virtual_memory_limit
-from redis_tools import block_until_connection
+from doshit.os_tools import set_virtual_memory_limit
+from doshit.redis_tools import block_until_connection
 
 import os
 import sys
@@ -120,7 +120,7 @@ def _set_task_finished_no_blocking(redis,
     pipe.lrem(executing_list_key, task_id, 0)
     pipe.execute()
 
-    print 'pub ' + results_channel_key + ' ' + task_hash_key
+    print('pub ' + results_channel_key + ' ' + task_hash_key)
     redis.publish(results_channel_key, task_hash_key)
 
     if logger:
@@ -210,7 +210,7 @@ def _exexcute_task(module, queue, task_id, task_hash_key):
                             TASK_HKEY_STATE,
                             TASK_HKEY_ARGS,
                             TASK_HKEY_VIRTUAL_MEMORY_LIMIT))
-        print task
+        print(task)
 
         function = task[0]
         state = task[1]
@@ -239,7 +239,7 @@ def _exexcute_task(module, queue, task_id, task_hash_key):
         logger.info('--------------------------------------')
 
         if virtual_memory_limit:
-            if isinstance(virtual_memory_limit, basestring):
+            if isinstance(virtual_memory_limit, str):
                 virtual_memory_limit = int(virtual_memory_limit)
             if virtual_memory_limit > 0:
                 set_virtual_memory_limit(virtual_memory_limit)
@@ -312,7 +312,7 @@ def worker_server(module, queue):
 
             task_hash_key = get_task_hash_key(task_id)
 
-            print task_hash_key
+            print(task_hash_key)
             logger.info('wtf')
             process = Process(target=_exexcute_task,
                               args=(module, queue, task_id, task_hash_key))
@@ -394,7 +394,7 @@ def main():
 
     import logging
     import sys
-    print sys.argv
+    print(sys.argv)
 
     logger = _create_logger()
     logger.info('hello')
@@ -409,7 +409,7 @@ usage='to run the example do:\n\
 3) python ../doshit/worker.py tasks\n\
 4) python call.py',
 
-    version=__version__
+    prog='doshit'+__version__
     )
 
     parser.add_argument('-q', '--queue',

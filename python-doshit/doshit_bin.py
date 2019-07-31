@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # -*- coding: utf-8 -*-
 import re
@@ -7,24 +7,24 @@ import argparse
 import doshit.worker
 
 def _print_help():
-    print 'DoShit is a remote executing job / task queue.'
-    print ''
-    print 'usage:'
-    print 'doshit [command] [command args]'
-    print ''
-    print 'commands:'
-    print 'worker - starts a worker process the will execture the job / task'
-    print ''
-    print 'examples:'
-    print '"doshit worker my_task.py" will start a worker that will excute the functions in my_task.py'
-    print '"doshit worker -h" will print the help for starting a worker'
-    print ''
-    print 'To use doshit you need to:'
-    print ' 1) start a redis-server'
-    print ' 2) start worker via "doshit worker [task_file]"'
-    print ' 3) call the function from python or NodeJS'
-    print ''
-    print 'check https://github.com/metocean/doshit/ for more info'
+    print('DoShit is a remote executing job / task queue.')
+    print('')
+    print('usage:')
+    print('doshit [command] [command args]')
+    print('')
+    print('commands:')
+    print('worker - starts a worker process the will execture the job / task')
+    print('')
+    print('examples:')
+    print('"doshit worker my_task.py" will start a worker that will excute the functions in my_task.py')
+    print('"doshit worker -h" will print the help for starting a worker')
+    print('')
+    print('To use doshit you need to:')
+    print(' 1) start a redis-server')
+    print(' 2) start worker via "doshit worker [task_file]"')
+    print(' 3) call the function from python or NodeJS')
+    print('')
+    print('check https://github.com/metocean/doshit/ for more info')
 
 
 

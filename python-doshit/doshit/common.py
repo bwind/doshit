@@ -1,4 +1,4 @@
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 from redis import Redis
 import doshit.settings as settings
@@ -21,8 +21,10 @@ def create_redis_connection(connection_dict=None, timeout=None):
         if timeout is not None:
             con['socket_timeout'] = timeout
             con['socket_connect_timeout'] = timeout
+        if 'decode_responses' not in con:
+            con['decode_responses'] = True
 
-        redis = Redis(**con, decode_responses=True)
+        redis = Redis(**con)
     elif timeout is not None:
         redis = Redis(socket_timeout=timeout, socket_connect_timeout=timeout, decode_responses=True)
     else:

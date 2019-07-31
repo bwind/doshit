@@ -1,0 +1,58 @@
+version: '3'
+services:
+  db:
+    image: redis
+    ports:
+      - 6379:6379
+
+  worker2:
+    build:
+      context: .
+      dockerfile: Dockerfile-python2
+    depends_on:
+      - db
+    volumes:
+      - ./test/doshit_settings2.py:/etc/doshit/doshit_settings.py
+    entrypoint:
+      - doshit
+      - worker
+      - tasks
+
+  worker3:
+    build:
+      context: .
+      dockerfile: Dockerfile-python3
+    depends_on:
+      - db
+    volumes:
+      - ./test/doshit_settings3.py:/etc/doshit/doshit_settings.py
+    entrypoint:
+      - doshit
+      - worker
+      - tasks
+
+  call2:
+    build:
+      context: .
+      dockerfile: Dockerfile-python2
+    depends_on:
+      - db
+      - worker2
+    volumes:
+      - ./test/doshit_settings2.py:/etc/doshit/doshit_settings.py
+    entrypoint:
+      - python
+      - call.py
+
+  call3:
+    build:
+      context: .
+      dockerfile: Dockerfile-python3
+    depends_on:
+      - db
+      - worker2
+    volumes:
+      - ./test/doshit_settings3.py:/etc/doshit/doshit_settings.py
+    entrypoint:
+      - python
+      - call.py

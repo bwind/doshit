@@ -143,8 +143,7 @@ class task(object):
             task_id = self.task_id
         else:
             task_id = str(uuid1())
-            
-        print(self.func)
+
         args_json = json.dumps(getcallargs(self.func, *args, **kwargs), indent=2)
 
         redis = create_redis_connection(self.redis_connection)
@@ -160,15 +159,20 @@ class task(object):
 
         pipe.lpush(pending_list_key, task_id)
 
-        print(self.virtual_memory_limit)
+        t = {
+            TASK_HKEY_FUNCTION: self.func.__name__,
+            TASK_HKEY_ARGS: args_json,
+            TASK_HKEY_STATE: STATE_PENDING,
+            TASK_HKEY_PENDING_CREATED: json.strftime(datetime.utcnow()),
+        }
 
-        pipe.hmset(task_hash_key,
-                   {TASK_HKEY_FUNCTION: self.func.__name__,
-                   TASK_HKEY_ARGS: args_json,
-                   TASK_HKEY_STATE: STATE_PENDING,
-                   TASK_HKEY_USERNAME: self.username,
-                   TASK_HKEY_PENDING_CREATED: json.strftime(datetime.utcnow()),
-                   TASK_HKEY_VIRTUAL_MEMORY_LIMIT: self.virtual_memory_limit})
+        if self.username:
+            t[TASK_HKEY_USERNAME] = self.username
+
+        if self.virtual_memory_limit > 0:
+            t[TASK_HKEY_USERNAME] = self.virtual_memory_limit
+
+        pipe.hmset(task_hash_key,t)
 
         pipe.execute()
 

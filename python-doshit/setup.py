@@ -30,7 +30,7 @@ class custom_install(install):
 
 
 print( setup(name='doshit',
-      version='0.1.0',
+      version='0.2.0',
       description='doshit',
       author='MetOcean Solutions',
       author_email='g.chalmers@metocean.co.nz',

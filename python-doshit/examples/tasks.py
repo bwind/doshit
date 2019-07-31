@@ -7,14 +7,14 @@ from doshit import task
 
 @task()
 def add(a, b):
-    print 'adding {0} {1}'.format(a, b)
+    print('adding {0} {1}'.format(a, b))
     return a + b
 
 
 @task()
 def echo(text):
     if hasattr(echo, 'task_id'):
-        print echo.task_id
+        print(echo.task_id)
     return text
 
 

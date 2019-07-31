@@ -1,0 +1,10 @@
+FROM python:2.7-slim
+
+COPY python-doshit/requirements.txt /install/doshit/requirements.txt
+RUN pip install -r /install/doshit/requirements.txt
+
+COPY python-doshit /install/doshit
+RUN cd /install/doshit && python setup.py install
+COPY python-doshit/examples /doshit-examples
+
+WORKDIR /doshit-examples

@@ -38,13 +38,12 @@ from doshit.redis_tools import block_until_connection
 import os
 import sys
 import signal
-import psutil
 import argparse
 import traceback
 from threading import Event
 from uuid import uuid4
 from datetime import datetime
-from socket import gethostname
+from socket import gethostname, gethostbyname
 from importlib import import_module
 from time import sleep
 
@@ -74,14 +73,17 @@ def _create_logger(log_level=logging.INFO, log_file=None):
 
 @block_until_connection(terminate_event=_terminate)
 def _register_worker(redis, worker_uuid):
+    hostname = gethostname()
+    try:
+        ipaddress = gethostbyname(hostname)
+    except:
+        ipaddress = ""
+
     redis.hmset(get_worker_hash_key(worker_uuid),
                 {
-                    'hostname': gethostname(),
+                    'hostname': hostname,
+                    'ipaddress': ipaddress,
                     'pid': os.getpid(),
-                    'cpu_cores': psutil.cpu_count(logical=True),
-                    'cpu_threads': psutil.cpu_count(logical=False),
-                    'virtual-mem': psutil.virtual_memory(),
-                    'swap-mem': psutil.swap_memory(),
                     'registered': strftime(datetime.utcnow())
                 })
 
@@ -117,7 +119,7 @@ def _set_task_finished_no_blocking(redis,
 
     pipe = redis.pipeline(transaction=True)
     pipe.hmset(task_hash_key, task)
-    pipe.lrem(executing_list_key, task_id, 0)
+    pipe.lrem(executing_list_key, 0, task_id)
     pipe.execute()
 
     print('pub ' + results_channel_key + ' ' + task_hash_key)
